@@ -6,41 +6,40 @@ media_folder: "images"
 public_folder: "/images"
 
 collections:
-
-  - name: "slider"
-    label: "Slider"
+  - name: slider
+    label: Slider
     folder: "content/slider"
     create: true
     slug: "{{slug}}"
     fields:
-      - { label: "Judul", name: "title", widget: "string" }
-      - { label: "Gambar", name: "image", widget: "image" }
+      - { label: Judul, name: title, widget: string }
+      - { label: Gambar, name: image, widget: image }
 
-  - name: "galeri"
-    label: "Galeri"
+  - name: galeri
+    label: Galeri
     folder: "content/galeri"
     create: true
     slug: "{{slug}}"
     fields:
-      - { label: "Judul", name: "title", widget: "string" }
-      - { label: "Gambar", name: "image", widget: "image" }
+      - { label: Judul, name: title, widget: string }
+      - { label: Gambar, name: image, widget: image }
 
-  - name: "agenda"
-    label: "Agenda"
+  - name: agenda
+    label: Agenda
     folder: "content/agenda"
     create: true
     slug: "{{slug}}"
     fields:
-      - { label: "Judul", name: "title", widget: "string" }
-      - { label: "Tanggal", name: "tanggal", widget: "string" }
-      - { label: "Deskripsi", name: "deskripsi", widget: "text" }
-      - { label: "Gambar", name: "image", widget: "image" }
+      - { label: Judul, name: title, widget: string }
+      - { label: Tanggal, name: tanggal, widget: string }
+      - { label: Deskripsi, name: deskripsi, widget: text }
+      - { label: Gambar, name: image, widget: image }
 
-  - name: "pengumuman"
-    label: "Pengumuman"
+  - name: pengumuman
+    label: Pengumuman
     folder: "content/pengumuman"
     create: true
     slug: "{{slug}}"
     fields:
-      - { label: "Judul", name: "title", widget: "string" }
-      - { label: "Isi", name: "body", widget: "markdown" }
+      - { label: Judul, name: title, widget: string }
+      - { label: Isi, name: body, widget: markdown }

@@ -606,10 +606,10 @@
         </div>
     </section>
 
-    <!-- Modal Detail Satu Agenda -->
-    <div id="agenda-detail-modal" class="hidden fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4">
+<!-- Modal Detail Satu Agenda -->
+    <div id="agenda-detail-modal" onclick="if(event.target===this) closeAgendaModal()" class="hidden fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-lg max-w-lg w-full max-h-[85vh] overflow-y-auto relative">
-            <button onclick="closeAgendaModal()" class="absolute top-3 right-3 text-gray-500 hover:text-gray-800 text-2xl leading-none">&times;</button>
+            <button onclick="closeAgendaModal()" class="absolute top-3 right-3 z-20 bg-white rounded-full w-9 h-9 flex items-center justify-center shadow-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 text-2xl leading-none">&times;</button>
             <img id="agenda-modal-img" src="" alt="" class="w-full h-56 object-cover rounded-t-lg">
             <div class="p-6">
                 <h4 id="agenda-modal-title" class="font-bold text-xl mb-1 text-blue-700"></h4>
@@ -620,9 +620,9 @@
     </div>
 
     <!-- Modal Semua Agenda (maks 21, susunan 3 kolom) -->
-    <div id="agenda-all-modal" class="hidden fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4">
+    <div id="agenda-all-modal" onclick="if(event.target===this) closeAgendaAllModal()" class="hidden fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-lg max-w-5xl w-full max-h-[85vh] overflow-y-auto relative p-6">
-            <button onclick="closeAgendaAllModal()" class="absolute top-3 right-3 text-gray-500 hover:text-gray-800 text-2xl leading-none">&times;</button>
+            <button onclick="closeAgendaAllModal()" class="absolute top-3 right-3 z-20 bg-white rounded-full w-9 h-9 flex items-center justify-center shadow-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 text-2xl leading-none">&times;</button>
             <h3 class="text-2xl font-bold text-center mb-6 text-blue-700">Semua Agenda</h3>
             <div id="agenda-all-container" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
         </div>
@@ -906,6 +906,12 @@ document.querySelectorAll('nav .group').forEach(group => {
       container.innerHTML = '<p class="text-center text-red-500 col-span-3">Gagal memuat agenda.</p>';
     }
   }
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    closeAgendaModal();
+    closeAgendaAllModal();
+  }
+});
   loadAgenda();
 </script>
 <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>

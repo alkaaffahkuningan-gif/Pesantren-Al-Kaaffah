@@ -1,10 +1,8 @@
 backend:
   name: git-gateway
   branch: main
-
 media_folder: "images"
 public_folder: "/images"
-
 collections:
   - name: slider
     label: Slider
@@ -44,11 +42,44 @@ collections:
       - { label: Judul, name: title, widget: string }
       - { label: Isi, name: body, widget: markdown }
 
-  - name: prestasi
-    label: Prestasi
-    folder: "content/prestasi"
-    create: true
-    slug: "{{slug}}"
-    fields:
-      - { label: Judul Prestasi, name: title, widget: string }
-      - { label: Keterangan, name: keterangan, widget: string }
+  - name: pengaturan
+    label: "Pengaturan Halaman"
+    files:
+      - name: profil
+        label: "Profil Pesantren"
+        file: "content/profil.json"
+        fields:
+          - { label: "Alamat", name: alamat, widget: text }
+          - { label: "Tenaga Pengajar", name: tenaga_pengajar, widget: text }
+          - { label: "Kurikulum Pesantren", name: kurikulum, widget: text }
+          - { label: "Visi & Misi", name: visi_misi, widget: text }
+
+      - name: pendaftaran
+        label: "Pendaftaran"
+        file: "content/pendaftaran.json"
+        fields:
+          - { label: "Judul", name: judul, widget: string }
+          - { label: "Sub Judul", name: subjudul, widget: string }
+          - label: "Syarat Pendaftaran"
+            name: syarat
+            widget: list
+            field: { label: Item, name: item, widget: string }
+          - label: "Alur Pendaftaran"
+            name: alur
+            widget: list
+            field: { label: Item, name: item, widget: string }
+          - label: "Materi Tes Masuk"
+            name: materi_tes
+            widget: list
+            field: { label: Item, name: item, widget: string }
+
+      - name: prestasi
+        label: "Prestasi"
+        file: "content/prestasi.json"
+        fields:
+          - label: "Daftar Prestasi"
+            name: items
+            widget: list
+            fields:
+              - { label: "Judul Prestasi", name: judul, widget: string }
+              - { label: "Keterangan", name: keterangan, widget: string }

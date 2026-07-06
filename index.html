@@ -458,48 +458,13 @@
 <section id="prestasi" class="relative bg-cover-section py-20" style="background-image: url('images/prestasi.jpg');">
   <div class="absolute inset-0 bg-white/20"></div>
   <div class="relative z-10 container mx-auto px-4 max-w-5xl">
-    
-    <!-- Judul -->
-<h2 class="text-3xl font-bold text-center text-blue-700 mb-2">Prestasi</h2>
-<div class="w-20 h-1 bg-blue-700 mx-auto mb-2 rounded"></div>
-<p class="text-center text-white mb-10">
-  Berikut adalah prestasi unggulan yang diraih santri Al-Kaaffah.
-</p>
-
-    <!-- Grid Card Prestasi -->
-    <div class="grid md:grid-cols-2 gap-6">
-      <div class="bg-white/90 p-4 rounded-lg fade-up shadow hover:scale-105 transition fade-up">
-        <h3 class="font-bold text-blue-700">Juara 03 MHQ Tingkat Nasional</h3>
-        <p class="text-sm text-gray-600">Expo Al Multazam 2022</p>
-      </div>
-      <div class="bg-white/90 p-4 rounded-lg fade-up shadow hover:scale-105 transition fade-up">
-        <h3 class="font-bold text-blue-700">Juara 03 Lomba Sekolah Sehat</h3>
-        <p class="text-sm text-gray-600">Kabupaten Kuningan 2022</p>
-      </div>
-      <div class="bg-white/90 p-4 rounded-lg fade-up shadow hover:scale-105 transition fade-up">
-        <h3 class="font-bold text-blue-700">Juara 03 Lomba Sains Madrasah Tingkat Kabupaten</h3>
-        <p class="text-sm text-gray-600">KSM BIologi 2024</p>
-      </div>
-      <div class="bg-white/90 p-4 rounded-lg fade-up shadow hover:scale-105 transition fade-up">
-        <h3 class="font-bold text-blue-700">Juara 01 Lomba Sains Madrasah Tingkat Kabupaten</h3>
-        <p class="text-sm text-gray-600">KSM BIologi 2024</p>
-      </div>
-      <div class="bg-white/90 p-4 rounded-lg fade-up shadow hover:scale-105 transition fade-up">
-        <h3 class="font-bold text-blue-700">Juara 03 Pidato Bahasa Arab Tingkat Nasional</h3>
-        <p class="text-sm text-gray-600">Expo Al Multazam 2024</p>
-      </div>
-      <div class="bg-white/90 p-4 rounded-lg fade-up shadow hover:scale-105 transition fade-up">
-        <h3 class="font-bold text-blue-700">Juara 02 OLimpiade Tingkat Kabupaten</h3>
-        <p class="text-sm text-gray-600">Pentas PAI 2025</p>
-      </div>
-      <div class="bg-white/90 p-4 rounded-lg fade-up shadow hover:scale-105 transition fade-up">
-        <h3 class="font-bold text-blue-700">Juara 01 Pidato Bahasa Arab se-CIAYUMAJAKUNING</h3>
-        <p class="text-sm text-gray-600">PIAT 2 Majalengka 2025</p>
-      </div>
-      <div class="bg-white/90 p-4 rounded-lg fade-up shadow hover:scale-105 transition fade-up">
-        <h3 class="font-bold text-blue-700">Juara 03 Pidato Bahasa Arab se-CIAYUMAJAKUNING</h3>
-        <p class="text-sm text-gray-600">PIAT 2 Majalengka 2025</p>
-      </div>
+    <h2 class="text-3xl font-bold text-center text-blue-700 mb-2">Prestasi</h2>
+    <div class="w-20 h-1 bg-blue-700 mx-auto mb-2 rounded"></div>
+    <p class="text-center text-white mb-10">
+      Berikut adalah prestasi unggulan yang diraih santri Al-Kaaffah.
+    </p>
+    <div id="prestasi-container" class="grid md:grid-cols-2 gap-6">
+      <p class="text-center text-white col-span-2">Memuat prestasi...</p>
     </div>
   </div>
 </section>
@@ -913,6 +878,36 @@ document.addEventListener('keydown', (e) => {
   }
 });
   loadAgenda();
+</script>
+<script>
+  async function loadPrestasi() {
+    const container = document.getElementById('prestasi-container');
+    try {
+      const res = await fetch('https://api.github.com/repos/alkaaffahkuningan-gif/Pesantren-Al-Kaaffah/contents/content/prestasi');
+      const files = await res.json();
+      const mdFiles = files.filter(f => f.name.endsWith('.md'));
+
+      const entries = await Promise.all(mdFiles.map(async f => {
+        const raw = await fetch(f.download_url).then(r => r.text());
+        const match = raw.match(/^---\n([\s\S]*?)\n---/);
+        return match ? jsyaml.load(match[1]) : {};
+      }));
+
+      const valid = entries.filter(e => e.title);
+      container.innerHTML = valid.length
+        ? valid.map(e => `
+            <div class="bg-white/90 p-4 rounded-lg shadow hover:scale-105 transition">
+              <h3 class="font-bold text-blue-700">${e.title}</h3>
+              <p class="text-sm text-gray-600">${e.keterangan || ''}</p>
+            </div>
+          `).join('')
+        : '<p class="text-center text-white col-span-2">Belum ada prestasi.</p>';
+    } catch (err) {
+      console.error('Gagal memuat prestasi:', err);
+      container.innerHTML = '<p class="text-center text-red-200 col-span-2">Gagal memuat prestasi.</p>';
+    }
+  }
+  loadPrestasi();
 </script>
 <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 <script>

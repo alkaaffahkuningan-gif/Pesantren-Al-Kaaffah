@@ -7,6 +7,7 @@
     <title>Pondok Pesantren Al-Kaaffah - SMP IT & MA IPA</title>
     <meta name="description" content="Website resmi Pondok Pesantren Al-Kaaffah - Mendidik Generasi Qurani dengan integrasi teknologi dan IPTEK." />
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
@@ -590,39 +591,12 @@
        </div>
     </section>
 
-    <!-- Agenda Pesantren -->
+<!-- Agenda Pesantren -->
     <section id="agenda" class="py-16 bg-white">
         <div class="container mx-auto px-4 max-w-6xl">
             <h3 class="text-3xl font-bold text-center mb-8 text-blue-700">Agenda Pesantren</h3>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-
-                <!-- Agenda 1 -->
-                <div class="bg-gray-100 text-gray-700 rounded-lg fade-up shadow hover-scale overflow-hidden">
-                    <img src="images/agenda1.jpg" alt="Ujian Tahfizh" class="w-full h-40 object-cover">
-                    <div class="p-4">
-                        <h4 class="font-bold text-lg">Ujian Tahfizh Semester</h4>
-                        <p class="text-gray-600">15 Oktober 2025 – seluruh santri mengikuti ujian hafalan Al-Qur’an per juz.</p>
-                    </div>
-                </div>
-
-                <!-- Agenda 2 -->
-                <div class="bg-gray-100 text-gray-700 rounded-lg fade-up shadow hover-scale overflow-hidden">
-                    <img src="images/agenda2.jpg" alt="Khitobah Akbar" class="w-full h-40 object-cover">
-                    <div class="p-4">
-                        <h4 class="font-bold text-lg">Khutbah & Khitobah Akbar</h4>
-                        <p class="text-gray-600">28 Oktober 2025 – lomba pidato dan khutbah tingkat pesantren.</p>
-                    </div>
-                </div>
-
-                <!-- Agenda 3 -->
-                <div class="bg-gray-100 text-gray-700 rounded-lg fade-up shadow hover-scale overflow-hidden">
-                    <img src="images/agenda3.jpg" alt="Penerimaan Santri" class="w-full h-40 object-cover">
-                    <div class="p-4">
-                        <h4 class="font-bold text-lg">Penerimaan Santri Baru</h4>
-                        <p class="text-gray-600">1 Januari 2026 – pembukaan pendaftaran untuk tahun ajaran baru.</p>
-                    </div>
-                </div>
-
+            <div id="agenda-container" class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <p class="text-center text-gray-500 col-span-3">Memuat agenda...</p>
             </div>
         </div>
     </section>
@@ -819,7 +793,41 @@ document.querySelectorAll('nav .group').forEach(group => {
     setTimeout(()=> l.remove(), 450);
   });
 </script>
+<script>
+  async function loadAgenda() {
+    const container = document.getElementById('agenda-container');
+    try {
+      const res = await fetch('https://api.github.com/repos/alkaaffahkuningan-gif/Pesantren-Al-Kaaffah/contents/content/agenda');
+      const files = await res.json();
+      const mdFiles = files.filter(f => f.name.endsWith('.md'));
 
+      const entries = await Promise.all(mdFiles.map(async f => {
+        const raw = await fetch(f.download_url).then(r => r.text());
+        const match = raw.match(/^---\n([\s\S]*?)\n---/);
+        return match ? jsyaml.load(match[1]) : {};
+      }));
+
+      if (entries.length === 0) {
+        container.innerHTML = '<p class="text-center text-gray-500 col-span-3">Belum ada agenda.</p>';
+        return;
+      }
+
+      container.innerHTML = entries.map(e => `
+        <div class="bg-gray-100 text-gray-700 rounded-lg fade-up show shadow hover-scale overflow-hidden">
+          <img src="${e.image || 'images/agenda1.jpg'}" alt="${e.title || ''}" class="w-full h-40 object-cover">
+          <div class="p-4">
+            <h4 class="font-bold text-lg">${e.title || ''}</h4>
+            <p class="text-gray-600"><strong>${e.tanggal || ''}</strong> — ${e.deskripsi || ''}</p>
+          </div>
+        </div>
+      `).join('');
+    } catch (err) {
+      console.error('Gagal memuat agenda:', err);
+      container.innerHTML = '<p class="text-center text-red-500 col-span-3">Gagal memuat agenda.</p>';
+    }
+  }
+  loadAgenda();
+</script>
 <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 <script>
   if (window.netlifyIdentity) {

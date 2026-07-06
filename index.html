@@ -598,8 +598,35 @@
             <div id="agenda-container" class="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <p class="text-center text-gray-500 col-span-3">Memuat agenda...</p>
             </div>
+            <div class="text-center mt-8">
+                <button onclick="openAgendaAllModal()" class="bg-blue-700 text-white px-6 py-2 rounded-full hover:bg-blue-800 transition">
+                    Lihat Semua Agenda
+                </button>
+            </div>
         </div>
     </section>
+
+    <!-- Modal Detail Satu Agenda -->
+    <div id="agenda-detail-modal" class="hidden fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-lg max-w-lg w-full max-h-[85vh] overflow-y-auto relative">
+            <button onclick="closeAgendaModal()" class="absolute top-3 right-3 text-gray-500 hover:text-gray-800 text-2xl leading-none">&times;</button>
+            <img id="agenda-modal-img" src="" alt="" class="w-full h-56 object-cover rounded-t-lg">
+            <div class="p-6">
+                <h4 id="agenda-modal-title" class="font-bold text-xl mb-1 text-blue-700"></h4>
+                <p id="agenda-modal-tanggal" class="text-gray-500 text-sm mb-4"></p>
+                <p id="agenda-modal-deskripsi" class="text-gray-700 whitespace-pre-line"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Semua Agenda (maks 21, susunan 3 kolom) -->
+    <div id="agenda-all-modal" class="hidden fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-lg max-w-5xl w-full max-h-[85vh] overflow-y-auto relative p-6">
+            <button onclick="closeAgendaAllModal()" class="absolute top-3 right-3 text-gray-500 hover:text-gray-800 text-2xl leading-none">&times;</button>
+            <h3 class="text-2xl font-bold text-center mb-6 text-blue-700">Semua Agenda</h3>
+            <div id="agenda-all-container" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
+        </div>
+    </div>
 
     <!-- Testimoni -->
     <section id="testimoni" class="py-16 bg-gray-50">
@@ -794,6 +821,68 @@ document.querySelectorAll('nav .group').forEach(group => {
   });
 </script>
 <script>
+  let allAgenda = [];
+
+  function parseTanggalIndo(str) {
+    if (!str) return new Date(0);
+    const bulanMap = {
+      januari:0, februari:1, maret:2, april:3, mei:4, juni:5,
+      juli:6, agustus:7, september:8, oktober:9, november:10, desember:11
+    };
+    const parts = str.trim().toLowerCase().split(/\s+/);
+    if (parts.length < 3) return new Date(0);
+    const [tgl, bln, thn] = parts;
+    const bulan = bulanMap[bln];
+    if (bulan === undefined) return new Date(0);
+    return new Date(parseInt(thn), bulan, parseInt(tgl));
+  }
+
+  function agendaCardHTML(e, idx) {
+    return `
+      <div class="bg-gray-100 text-gray-700 rounded-lg shadow hover-scale overflow-hidden cursor-pointer" onclick="openAgendaModal(${idx})">
+        <img src="${e.image || 'images/agenda1.jpg'}" alt="${e.title || ''}" class="w-full h-40 object-cover">
+        <div class="p-4">
+          <h4 class="font-bold text-lg">${e.title || ''}</h4>
+          <p class="text-gray-500 text-sm">${e.tanggal || ''}</p>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderAgendaHome() {
+    const container = document.getElementById('agenda-container');
+    const top3 = allAgenda.slice(0, 3);
+    container.innerHTML = top3.length
+      ? top3.map((e, i) => agendaCardHTML(e, i)).join('')
+      : '<p class="text-center text-gray-500 col-span-3">Belum ada agenda.</p>';
+  }
+
+  function renderAgendaAll() {
+    const container = document.getElementById('agenda-all-container');
+    const top21 = allAgenda.slice(0, 21);
+    container.innerHTML = top21.map((e, i) => agendaCardHTML(e, i)).join('');
+  }
+
+  function openAgendaModal(idx) {
+    const e = allAgenda[idx];
+    if (!e) return;
+    document.getElementById('agenda-modal-title').textContent = e.title || '';
+    document.getElementById('agenda-modal-tanggal').textContent = e.tanggal || '';
+    document.getElementById('agenda-modal-deskripsi').textContent = e.deskripsi || '';
+    document.getElementById('agenda-modal-img').src = e.image || 'images/agenda1.jpg';
+    document.getElementById('agenda-detail-modal').classList.remove('hidden');
+  }
+  function closeAgendaModal() {
+    document.getElementById('agenda-detail-modal').classList.add('hidden');
+  }
+  function openAgendaAllModal() {
+    renderAgendaAll();
+    document.getElementById('agenda-all-modal').classList.remove('hidden');
+  }
+  function closeAgendaAllModal() {
+    document.getElementById('agenda-all-modal').classList.add('hidden');
+  }
+
   async function loadAgenda() {
     const container = document.getElementById('agenda-container');
     try {
@@ -807,20 +896,11 @@ document.querySelectorAll('nav .group').forEach(group => {
         return match ? jsyaml.load(match[1]) : {};
       }));
 
-      if (entries.length === 0) {
-        container.innerHTML = '<p class="text-center text-gray-500 col-span-3">Belum ada agenda.</p>';
-        return;
-      }
+      allAgenda = entries
+        .filter(e => e.title)
+        .sort((a, b) => parseTanggalIndo(b.tanggal) - parseTanggalIndo(a.tanggal));
 
-      container.innerHTML = entries.map(e => `
-        <div class="bg-gray-100 text-gray-700 rounded-lg fade-up show shadow hover-scale overflow-hidden">
-          <img src="${e.image || 'images/agenda1.jpg'}" alt="${e.title || ''}" class="w-full h-40 object-cover">
-          <div class="p-4">
-            <h4 class="font-bold text-lg">${e.title || ''}</h4>
-            <p class="text-gray-600"><strong>${e.tanggal || ''}</strong> — ${e.deskripsi || ''}</p>
-          </div>
-        </div>
-      `).join('');
+      renderAgendaHome();
     } catch (err) {
       console.error('Gagal memuat agenda:', err);
       container.innerHTML = '<p class="text-center text-red-500 col-span-3">Gagal memuat agenda.</p>';

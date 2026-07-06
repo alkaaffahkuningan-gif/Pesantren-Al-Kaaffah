@@ -43,3 +43,12 @@ collections:
     fields:
       - { label: Judul, name: title, widget: string }
       - { label: Isi, name: body, widget: markdown }
+
+- name: prestasi
+    label: Prestasi
+    folder: "content/prestasi"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: Judul Prestasi, name: title, widget: string }
+      - { label: Keterangan, name: keterangan, widget: string }

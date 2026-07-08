@@ -1,5 +1,5 @@
 ---
-title: Ujian Tahfizh Semester
+title: Ujian Tahfizh Semester 1
 tanggal: 17 Oktober 2025
 deskripsi: >-
   Seluruh santri diwajibkan mengikuti ujian hafalan Al-Qur'an pada setiap

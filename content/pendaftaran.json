@@ -1,0 +1,29 @@
+{
+  "judul": "Pendaftaran Santri & Santriwati Baru",
+  "subjudul": "Penerimaan Santri & Santriwati baru tahun ajaran 2026/2027 telah dibuka.",
+  "syarat": [
+    { "item": "Siswa/Siswi kelas 6 SD/MI untuk SMP" },
+    { "item": "Siswa/Siswi kelas 9 SMP/MTs untuk MA" },
+    { "item": "Membayar Biaya Pendaftaran Rp. 300.000" },
+    { "item": "Surat Keterangan Sehat dari Dokter" },
+    { "item": "Surat kelakuan baik dari sekolah asal" },
+    { "item": "Fotokopi akta kelahiran & kartu keluarga" },
+    { "item": "Fotocopy Rapor kelas 5 SD/MI 2 Semester (untuk daftar SMP)" },
+    { "item": "Fotocopy Rapor kelas 8 SMP/MTs 2 Semester (untuk daftar MA)" },
+    { "item": "Pas foto 3x4 (3 lembar)" }
+  ],
+  "alur": [
+    { "item": "Membayar biaya pendaftaran ke Rekening BRI : 4279 0101 7613 532 (a.n Pondok Pesantren AlKaaffah) atau membayar langsung ke Bagian Pendaftaran." },
+    { "item": "Mengirim bukti transfer ke Bagian Pendaftaran" },
+    { "item": "Mengisi formulir pendaftaran yang diberikan Bagian Pendaftaran" },
+    { "item": "Mengikuti tes masuk" },
+    { "item": "Pengumuman hasil seleksi" },
+    { "item": "Daftar ulang & pembayaran biaya pendidikan" }
+  ],
+  "materi_tes": [
+    { "item": "Membaca Al-Qur'an" },
+    { "item": "Tes Tulis (Pengetahuan Dasar-dasar Islam, Bahasa Indonesia, Matematika) Untuk yang mendaftar ke SMP" },
+    { "item": "Tes Tulis (Pengetahuan Dasar-dasar Islam, Bahasa Arab, Matematika) Untuk yang mendaftar ke MA" },
+    { "item": "Tes Wawancara" }
+  ]
+}

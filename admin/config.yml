@@ -86,3 +86,59 @@ collections:
             fields:
               - { label: "Judul Prestasi", name: judul, widget: string }
               - { label: "Keterangan", name: keterangan, widget: string }
+
+- name: hero
+        label: "Hero (Beranda)"
+        file: "content/hero.json"
+        fields:
+          - { label: "Judul", name: judul, widget: string }
+          - { label: "Subjudul", name: subjudul, widget: string }
+          - { label: "Gambar Hero", name: gambar, widget: image }
+
+      - name: jenjang
+        label: "Jenjang Pendidikan"
+        file: "content/jenjang.json"
+        fields:
+          - label: "SMP IT Al-Kaaffah"
+            name: smp
+            widget: object
+            fields:
+              - { label: "Gambar", name: gambar, widget: image }
+              - { label: "Deskripsi", name: deskripsi, widget: text }
+              - label: "Rincian Biaya"
+                name: biaya
+                widget: list
+                field: { label: Item, name: item, widget: string }
+          - label: "MA IPA Al-Kaaffah"
+            name: ma
+            widget: object
+            fields:
+              - { label: "Gambar", name: gambar, widget: image }
+              - { label: "Deskripsi", name: deskripsi, widget: text }
+              - label: "Rincian Biaya"
+                name: biaya
+                widget: list
+                field: { label: Item, name: item, widget: string }
+
+      - name: testimoni
+        label: "Testimoni"
+        file: "content/testimoni.json"
+        fields:
+          - label: "Daftar Testimoni"
+            name: items
+            widget: list
+            fields:
+              - { label: "Isi Testimoni", name: isi, widget: text }
+              - { label: "Nama/Sumber", name: nama, widget: string }
+
+      - name: kontak
+        label: "Kontak & Footer"
+        file: "content/kontak.json"
+        fields:
+          - { label: "Alamat", name: alamat, widget: text }
+          - { label: "Telepon", name: telepon, widget: string }
+          - { label: "Email", name: email, widget: string }
+          - { label: "Link Facebook", name: facebook, widget: string }
+          - { label: "Link Instagram", name: instagram, widget: string }
+          - { label: "Link YouTube", name: youtube, widget: string }
+          - { label: "Link WhatsApp", name: whatsapp, widget: string }

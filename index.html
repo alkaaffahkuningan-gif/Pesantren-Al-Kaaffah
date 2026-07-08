@@ -858,18 +858,21 @@ function renderAgendaRelated(currentIdx) {
     renderAgendaRelated(idx);
     document.getElementById('agenda-all-modal').classList.add('hidden');
     document.getElementById('agenda-detail-modal').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
   }
   function closeAgendaModal() {
     document.getElementById('agenda-detail-modal').classList.add('hidden');
+    document.body.style.overflow = '';
   }
   function openAgendaAllModal() {
     renderAgendaAll();
     document.getElementById('agenda-all-modal').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
   }
   function closeAgendaAllModal() {
     document.getElementById('agenda-all-modal').classList.add('hidden');
+    document.body.style.overflow = '';
   }
-
   async function loadAgenda() {
     const container = document.getElementById('agenda-container');
     try {

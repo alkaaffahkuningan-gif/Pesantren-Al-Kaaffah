@@ -1,6 +1,6 @@
 ---
-title: Ujian Tahfizh Semester
-tanggal: 17 Oktober 2025
+title: Ujian Tahfizh Semester 2
+tanggal: 17 Juni 2026
 deskripsi: >-
   Seluruh santri diwajibkan mengikuti ujian hafalan Al-Qur'an pada setiap
   penyelesaian satu juz sebagai bagian dari proses evaluasi pembelajaran

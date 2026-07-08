@@ -1,0 +1,22 @@
+{
+  "smp": {
+    "gambar": "images/smp.jpg",
+    "deskripsi": "SMP IT Al-Kaaffah memiliki kuota penerimaan 32 santri putra dan 32 santri putri. Program unggulan meliputi Tahfizhul Qur'an terakreditasi B, kurikulum terpadu antara ilmu syar'i dan ilmu umum, serta pengembangan bahasa Arab dan Inggris.",
+    "biaya": [
+      { "item": "Uang pangkal: Rp 10.000.000" },
+      { "item": "Uang buku, seragam & kegiatan: Rp 3.200.000" },
+      { "item": "SPP per bulan: Rp 1.350.000" },
+      { "item": "Daftar ulang tahunan: Rp 2.500.000" }
+    ]
+  },
+  "ma": {
+    "gambar": "images/ma.jpg",
+    "deskripsi": "MA IPA Al-Kaaffah juga menerima 32 santri putra dan 32 santri putri. Fokus pada program IPA dengan kurikulum yang mengintegrasikan ilmu agama dan ilmu pengetahuan umum, serta program tahfizhul Qur'an.",
+    "biaya": [
+      { "item": "Uang pangkal: Rp 10.000.000" },
+      { "item": "Uang buku, seragam & kegiatan: Rp 3.700.000" },
+      { "item": "SPP per bulan: Rp 1.350.000" },
+      { "item": "Daftar ulang tahunan: Rp 2.500.000" }
+    ]
+  }
+}

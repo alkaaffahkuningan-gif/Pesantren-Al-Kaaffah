@@ -310,12 +310,12 @@
            class="w-full rounded-lg fade-up shadow-md hover-scale" />
       
       <!-- Teks -->
-      <div class="text-gray-700 text-lg fade-up space-y-4 leading-relaxed text-justify">
-        <p><strong>Alamat:</strong> Dusun Dukuh RT/RW 011/004, Desa Dukuh Picung, Kec. Luragung, Kab. Kuningan 45581, Jawa Barat</p>
-        <p><strong>Tenaga Pengajar:</strong> Para hafizh dan hafizhoh yang kompeten serta guru yang menguasai bidangnya.</p>
-        <p><strong>Kurikulum Pesantren:</strong> Pesantren Al-Kaaffah bukanlah sekedar pesantren biasa seperti pada umumnya. Karena Pesantren Al-Kaaffah menggabungkan antara kecerdasan Spiritual dan Intelektual dengan kurikulum Pemerintah dan kurikulum pesantren sehingga In Syaa Allah akan menghasilkan siswa-siswi yang unggul dalam Ilmu Syar'i dan ilmu pengetahuan umum, serta memiliki kecerdasan dan aqidah yang lurus sesuai tuntunan Al-Qur'an dan Sunnah.</p>
-        <p><strong>Visi & Misi:</strong> Menjadi Lembaga kaderisasi ummat yang berkualitas dalam membentuk pribadi yang Rabbani, Qur'ani  dan Mandiri dalam bingkai Aqidah yang lurus sesuai pemahaman Khoirul Ummah Salafushalih.</p>
-      </div>
+    <div class="text-gray-700 text-lg fade-up space-y-4 leading-relaxed text-justify">
+      <p><strong>Alamat:</strong> <span id="profil-alamat">Dusun Dukuh RT/RW 011/004, Desa Dukuh Picung, Kec. Luragung, Kab. Kuningan 45581, Jawa Barat</span></p>
+      <p><strong>Tenaga Pengajar:</strong> <span id="profil-tenaga">Para hafizh dan hafizhoh yang kompeten serta guru yang menguasai bidangnya.</span></p>
+      <p><strong>Kurikulum Pesantren:</strong> <span id="profil-kurikulum">Pesantren Al-Kaaffah bukanlah sekedar pesantren biasa seperti pada umumnya...</span></p>
+      <p><strong>Visi & Misi:</strong> <span id="profil-visimisi">Menjadi Lembaga kaderisasi ummat...</span></p>
+    </div>
     </div>
   </div>
 </section>
@@ -409,16 +409,16 @@
   </div>
 </section>
 
-    <!-- Pendaftaran -->
+<!-- Pendaftaran -->
     <section id="pendaftaran" class="relative bg-cover-section py-20" style="background-image: url('images/pendaftaran.jpg');">
         <div class="absolute inset-0 bg-white/50 backdrop-blur-sm"></div>
         <div class="relative z-10 container mx-auto px-4 max-w-6xl">
-            <h3 class="text-3xl font-bold text-center text-blue-700 mb-4">Pendaftaran Santri & Santriwati Baru</h3>
-            <p class="font-bold text-center text-blue-700 mb-10">Penerimaan Santri & Santriwati baru tahun ajaran 2026/2027 telah dibuka.</p>
+            <h3 id="pendaftaran-judul" class="text-3xl font-bold text-center text-blue-700 mb-4">Pendaftaran Santri & Santriwati Baru</h3>
+            <p id="pendaftaran-subjudul" class="font-bold text-center text-blue-700 mb-10">Penerimaan Santri & Santriwati baru tahun ajaran 2026/2027 telah dibuka.</p>
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div class="bg-white/80 backdrop-blur-sm p-6 rounded-xl shadow-lg fade-up">
                     <h3 class="font-bold mb-2 text-blue-700">Syarat Pendaftaran</h3>
-                    <ul class="list-disc list-inside text-gray-800">
+                    <ul id="syarat-list" class="list-disc list-inside text-gray-800">
                         <li>Siswa/Siswi kelas 6 SD/MI untuk SMP</li>
                         <li>Siswa/Siswi kelas 9 SMP/MTs untuk MA</li>
                         <li>Membayar Biaya Pendaftaran Rp. 300.000</li>
@@ -432,7 +432,7 @@
                 </div>
                 <div class="bg-white/80 backdrop-blur-sm p-6 rounded-xl shadow-lg fade-up">
                     <h3 class="font-bold mb-2 text-blue-700">Alur Pendaftaran</h3>
-                    <ol class="list-decimal list-inside text-gray-800">
+                    <ol id="alur-list" class="list-decimal list-inside text-gray-800">
                         <li>Membayar biaya pendaftaran ke Rekening BRI : 4279 0101 7613 532 (a.n Pondok Pesantren AlKaaffah) atau membayar langsung ke Bagian Pendaftaran.</li>
                         <li>Mengirim bukti transfer ke Bagian Pendaftaran</li>
                         <li>Mengisi formulir pendaftaran yang diberikan Bagian Pendaftaran</li>
@@ -443,7 +443,7 @@
                 </div>
                 <div class="bg-white/80 backdrop-blur-sm p-6 rounded-xl shadow-lg fade-up">
                     <h3 class="font-bold mb-2 text-blue-700">Materi Tes Masuk</h3>
-                    <ul class="list-disc list-inside text-gray-800">
+                    <ul id="materitest-list" class="list-disc list-inside text-gray-800">
                         <li>Membaca Al-Qur'an</li>
                         <li>Tes Tulis ((Pengetahuan Dasar-dasar Islam, Bahasa Indonesia, Matematika) Untuk yang mendaftar ke SMP</li>
                         <li>Tes Tulis ((Pengetahuan Dasar-dasar Islam, Bahasa Arab, Matematika) Untuk yang mendaftar ke MA</li>
@@ -463,7 +463,7 @@
     <p class="text-center text-white mb-10">
       Berikut adalah prestasi unggulan yang diraih santri Al-Kaaffah.
     </p>
-    <div id="prestasi-container" class="grid md:grid-cols-2 gap-6">
+    <div id="prestasi-grid" class="grid md:grid-cols-2 gap-6">
       <p class="text-center text-white col-span-2">Memuat prestasi...</p>
     </div>
   </div>
@@ -880,34 +880,53 @@ document.addEventListener('keydown', (e) => {
   loadAgenda();
 </script>
 <script>
-  async function loadPrestasi() {
-    const container = document.getElementById('prestasi-container');
-    try {
-      const res = await fetch('https://api.github.com/repos/alkaaffahkuningan-gif/Pesantren-Al-Kaaffah/contents/content/prestasi');
-      const files = await res.json();
-      const mdFiles = files.filter(f => f.name.endsWith('.md'));
-
-      const entries = await Promise.all(mdFiles.map(async f => {
-        const raw = await fetch(f.download_url).then(r => r.text());
-        const match = raw.match(/^---\n([\s\S]*?)\n---/);
-        return match ? jsyaml.load(match[1]) : {};
-      }));
-
-      const valid = entries.filter(e => e.title);
-      container.innerHTML = valid.length
-        ? valid.map(e => `
-            <div class="bg-white/90 p-4 rounded-lg shadow hover:scale-105 transition">
-              <h3 class="font-bold text-blue-700">${e.title}</h3>
-              <p class="text-sm text-gray-600">${e.keterangan || ''}</p>
-            </div>
-          `).join('')
-        : '<p class="text-center text-white col-span-2">Belum ada prestasi.</p>';
-    } catch (err) {
-      console.error('Gagal memuat prestasi:', err);
-      container.innerHTML = '<p class="text-center text-red-200 col-span-2">Gagal memuat prestasi.</p>';
+async function muatDataCMS() {
+  try {
+    const res = await fetch('/content/profil.json');
+    if (res.ok) {
+      const data = await res.json();
+      if (data.alamat) document.getElementById('profil-alamat').textContent = data.alamat;
+      if (data.tenaga_pengajar) document.getElementById('profil-tenaga').textContent = data.tenaga_pengajar;
+      if (data.kurikulum) document.getElementById('profil-kurikulum').textContent = data.kurikulum;
+      if (data.visi_misi) document.getElementById('profil-visimisi').textContent = data.visi_misi;
     }
-  }
-  loadPrestasi();
+  } catch (e) { console.error('Gagal memuat profil.json', e); }
+
+  try {
+    const res = await fetch('/content/pendaftaran.json');
+    if (res.ok) {
+      const data = await res.json();
+      if (data.judul) document.getElementById('pendaftaran-judul').textContent = data.judul;
+      if (data.subjudul) document.getElementById('pendaftaran-subjudul').textContent = data.subjudul;
+      const isiList = (id, arr) => {
+        const el = document.getElementById(id);
+        if (el && Array.isArray(arr)) {
+          el.innerHTML = arr.map(x => `<li>${x.item ?? x}</li>`).join('');
+        }
+      };
+      isiList('syarat-list', data.syarat);
+      isiList('alur-list', data.alur);
+      isiList('materitest-list', data.materi_tes);
+    }
+  } catch (e) { console.error('Gagal memuat pendaftaran.json', e); }
+
+  try {
+    const res = await fetch('/content/prestasi.json');
+    if (res.ok) {
+      const data = await res.json();
+      const grid = document.getElementById('prestasi-grid');
+      if (grid && Array.isArray(data.items)) {
+        grid.innerHTML = data.items.map(p => `
+          <div class="bg-white/90 p-4 rounded-lg fade-up shadow hover:scale-105 transition fade-up">
+            <h3 class="font-bold text-blue-700">${p.judul}</h3>
+            <p class="text-sm text-gray-600">${p.keterangan}</p>
+          </div>
+        `).join('');
+      }
+    }
+  } catch (e) { console.error('Gagal memuat prestasi.json', e); }
+}
+muatDataCMS();
 </script>
 <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 <script>

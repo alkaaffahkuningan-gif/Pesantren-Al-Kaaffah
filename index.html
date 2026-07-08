@@ -557,35 +557,40 @@
     </section>
 
 <!-- Agenda Pesantren -->
-    <section id="agenda" class="py-16 bg-white">
-        <div class="container mx-auto px-4 max-w-6xl">
-            <h3 class="text-3xl font-bold text-center mb-8 text-blue-700">Agenda Pesantren</h3>
-            <div id="agenda-container" class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <p class="text-center text-gray-500 col-span-3">Memuat agenda...</p>
-            </div>
-            <div class="text-center mt-8">
-                <button onclick="openAgendaAllModal()" class="bg-blue-700 text-white px-6 py-2 rounded-full hover:bg-blue-800 transition">
-                    Lihat Semua Agenda
-                </button>
-            </div>
+<section id="agenda" class="py-16 bg-white">
+    <div class="container mx-auto px-4 max-w-6xl">
+        <h3 class="text-3xl font-bold text-center mb-8 text-blue-700">Agenda Pesantren</h3>
+        <div id="agenda-container" class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <p class="text-center text-gray-500 col-span-3">Memuat agenda...</p>
         </div>
-    </section>
+        <div class="text-center mt-10">
+            <button onclick="openAgendaAllModal()" class="bg-blue-700 text-white font-semibold px-6 py-3 rounded-full hover:bg-blue-800 hover:scale-105 transition shadow">
+                Lihat Semua Agenda
+            </button>
+        </div>
+    </div>
+</section>
 
 <!-- Modal Detail Satu Agenda -->
-    <div id="agenda-detail-modal" onclick="if(event.target===this) closeAgendaModal()" class="hidden fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-lg max-w-lg w-full max-h-[85vh] overflow-y-auto relative">
+    <div id="agenda-detail-modal" onclick="if(event.target===this) closeAgendaModal()" class="hidden fixed inset-0 bg-black bg-opacity-60 z-[70] flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto relative">
             <button onclick="closeAgendaModal()" class="absolute top-3 right-3 z-20 bg-white rounded-full w-9 h-9 flex items-center justify-center shadow-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 text-2xl leading-none">&times;</button>
-            <img id="agenda-modal-img" src="" alt="" class="w-full h-56 object-cover rounded-t-lg">
-            <div class="p-6">
-                <h4 id="agenda-modal-title" class="font-bold text-xl mb-1 text-blue-700"></h4>
-                <p id="agenda-modal-tanggal" class="text-gray-500 text-sm mb-4"></p>
-                <p id="agenda-modal-deskripsi" class="text-gray-700 whitespace-pre-line"></p>
+            <img id="agenda-modal-img" src="" alt="" class="w-full h-64 object-cover rounded-t-2xl">
+            <div class="p-6 md:p-8">
+                <p id="agenda-modal-tanggal" class="text-sm text-blue-600 font-semibold mb-2"></p>
+                <h4 id="agenda-modal-title" class="font-bold text-2xl mb-4 text-gray-800"></h4>
+                <p id="agenda-modal-deskripsi" class="text-gray-700 leading-relaxed whitespace-pre-line"></p>
+
+                <div class="mt-10 border-t pt-6">
+                  <h5 class="font-bold text-lg text-blue-700 mb-4">Agenda Lainnya</h5>
+                  <div id="agenda-related" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- Modal Semua Agenda (maks 21, susunan 3 kolom) -->
-    <div id="agenda-all-modal" onclick="if(event.target===this) closeAgendaAllModal()" class="hidden fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4">
+    <div id="agenda-all-modal" onclick="if(event.target===this) closeAgendaAllModal()" class="hidden fixed inset-0 bg-black bg-opacity-60 z-[60] flex items-center justify-center p-4">
         <div class="bg-white rounded-lg max-w-5xl w-full max-h-[85vh] overflow-y-auto relative p-6">
             <button onclick="closeAgendaAllModal()" class="absolute top-3 right-3 z-20 bg-white rounded-full w-9 h-9 flex items-center justify-center shadow-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 text-2xl leading-none">&times;</button>
             <h3 class="text-2xl font-bold text-center mb-6 text-blue-700">Semua Agenda</h3>
@@ -638,7 +643,6 @@
     </div>
   </div>
 </section>
-
 <footer class="bg-[#009FB2] text-white py-12">
   <div class="container mx-auto px-4 grid md:grid-cols-3 gap-8 items-start">
     
@@ -828,6 +832,22 @@ document.querySelectorAll('nav .group').forEach(group => {
     container.innerHTML = top21.map((e, i) => agendaCardHTML(e, i)).join('');
   }
 
+function renderAgendaRelated(currentIdx) {
+    const related = allAgenda
+      .map((e, i) => ({ e, i }))
+      .filter(x => x.i !== currentIdx)
+      .slice(0, 2);
+    document.getElementById('agenda-related').innerHTML = related.map(({e, i}) => `
+      <div class="flex gap-3 items-center cursor-pointer group" onclick="openAgendaModal(${i})">
+        <img src="${e.image || 'images/agenda1.jpg'}" alt="${e.title || ''}" class="w-20 h-20 object-cover rounded-lg shrink-0">
+        <div>
+          <p class="font-semibold text-gray-800 group-hover:text-blue-700 transition">${e.title || ''}</p>
+          <p class="text-xs text-gray-500">${e.tanggal || ''}</p>
+        </div>
+      </div>
+    `).join('');
+  }
+
   function openAgendaModal(idx) {
     const e = allAgenda[idx];
     if (!e) return;
@@ -835,7 +855,10 @@ document.querySelectorAll('nav .group').forEach(group => {
     document.getElementById('agenda-modal-tanggal').textContent = e.tanggal || '';
     document.getElementById('agenda-modal-deskripsi').textContent = e.deskripsi || '';
     document.getElementById('agenda-modal-img').src = e.image || 'images/agenda1.jpg';
+    renderAgendaRelated(idx);
+    document.getElementById('agenda-all-modal').classList.add('hidden');
     document.getElementById('agenda-detail-modal').classList.remove('hidden');
+  }
   }
   function closeAgendaModal() {
     document.getElementById('agenda-detail-modal').classList.add('hidden');
@@ -927,18 +950,6 @@ async function muatDataCMS() {
   } catch (e) { console.error('Gagal memuat prestasi.json', e); }
 }
 muatDataCMS();
-</script>
-<script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
-<script>
-  if (window.netlifyIdentity) {
-    window.netlifyIdentity.on("init", (user) => {
-      if (!user) {
-        window.netlifyIdentity.on("login", () => {
-          document.location.href = "/admin/";
-        });
-      }
-    });
-  }
 </script>
 </body>
 </html>

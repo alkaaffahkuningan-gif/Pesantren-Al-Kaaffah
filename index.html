@@ -573,7 +573,7 @@
 
 <!-- Modal Detail Satu Agenda -->
     <div id="agenda-detail-modal" onclick="if(event.target===this) closeAgendaModal()" class="hidden fixed inset-0 bg-black bg-opacity-60 z-[70] flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto relative">
+        <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto overscroll-contain relative">
             <button onclick="closeAgendaModal()" class="absolute top-3 right-3 z-20 bg-white rounded-full w-9 h-9 flex items-center justify-center shadow-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 text-2xl leading-none">&times;</button>
             <img id="agenda-modal-img" src="" alt="" class="w-full h-64 object-cover rounded-t-2xl">
             <div class="p-6 md:p-8">
@@ -583,7 +583,15 @@
 
                 <div class="mt-10 border-t pt-6">
                   <h5 class="font-bold text-lg text-blue-700 mb-4">Agenda Lainnya</h5>
-                  <div id="agenda-related" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+                  <div class="flex items-center gap-3">
+                    <button onclick="prevRelated()" aria-label="Sebelumnya" class="shrink-0 w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700 transition">
+                      <i class="fa-solid fa-chevron-left text-xl" style="-webkit-text-stroke: 1px currentColor;"></i>
+                    </button>
+                    <div id="agenda-related" class="grid grid-cols-1 sm:grid-cols-2 gap-4 flex-1"></div>
+                    <button onclick="nextRelated()" aria-label="Berikutnya" class="shrink-0 w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700 transition">
+                      <i class="fa-solid fa-chevron-right text-xl" style="-webkit-text-stroke: 1px currentColor;"></i>
+                    </button>
+                  </div>
                 </div>
             </div>
         </div>
@@ -591,7 +599,7 @@
 
     <!-- Modal Semua Agenda (maks 21, susunan 3 kolom) -->
     <div id="agenda-all-modal" onclick="if(event.target===this) closeAgendaAllModal()" class="hidden fixed inset-0 bg-black bg-opacity-60 z-[60] flex items-center justify-center p-4">
-        <div class="bg-white rounded-lg max-w-5xl w-full max-h-[85vh] overflow-y-auto relative p-6">
+        <div class="bg-white rounded-lg max-w-5xl w-full max-h-[85vh] overflow-y-auto overscroll-contain relative p-6">
             <button onclick="closeAgendaAllModal()" class="absolute top-3 right-3 z-20 bg-white rounded-full w-9 h-9 flex items-center justify-center shadow-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 text-2xl leading-none">&times;</button>
             <h3 class="text-2xl font-bold text-center mb-6 text-blue-700">Semua Agenda</h3>
             <div id="agenda-all-container" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
@@ -832,12 +840,30 @@ document.querySelectorAll('nav .group').forEach(group => {
     container.innerHTML = top21.map((e, i) => agendaCardHTML(e, i)).join('');
   }
 
+let relatedList = [];
+let relatedStart = 0;
+
 function renderAgendaRelated(currentIdx) {
-    const related = allAgenda
+    relatedList = allAgenda
       .map((e, i) => ({ e, i }))
-      .filter(x => x.i !== currentIdx)
-      .slice(0, 2);
-    document.getElementById('agenda-related').innerHTML = related.map(({e, i}) => `
+      .filter(x => x.i !== currentIdx);
+    relatedStart = 0;
+    renderRelatedView();
+}
+
+function renderRelatedView() {
+    const container = document.getElementById('agenda-related');
+    const n = relatedList.length;
+    if (n === 0) {
+      container.innerHTML = '<p class="text-gray-500 text-sm col-span-2">Belum ada agenda lain.</p>';
+      return;
+    }
+    const visibleCount = Math.min(2, n);
+    const items = [];
+    for (let k = 0; k < visibleCount; k++) {
+      items.push(relatedList[(relatedStart + k) % n]);
+    }
+    container.innerHTML = items.map(({e, i}) => `
       <div class="flex gap-3 items-center cursor-pointer group" onclick="openAgendaModal(${i})">
         <img src="${e.image || 'images/agenda1.jpg'}" alt="${e.title || ''}" class="w-20 h-20 object-cover rounded-lg shrink-0">
         <div>
@@ -846,7 +872,19 @@ function renderAgendaRelated(currentIdx) {
         </div>
       </div>
     `).join('');
-  }
+}
+
+function nextRelated() {
+    if (relatedList.length <= 2) return;
+    relatedStart = (relatedStart + 1) % relatedList.length;
+    renderRelatedView();
+}
+
+function prevRelated() {
+    if (relatedList.length <= 2) return;
+    relatedStart = (relatedStart - 1 + relatedList.length) % relatedList.length;
+    renderRelatedView();
+}
 
   function openAgendaModal(idx) {
     const e = allAgenda[idx];

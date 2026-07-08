@@ -594,7 +594,9 @@
                         <button onclick="prevRelated()" aria-label="Sebelumnya" class="shrink-0 w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700 transition">
                           <i class="fa-solid fa-chevron-left text-xl" style="-webkit-text-stroke: 1px currentColor;"></i>
                         </button>
-                        <div id="agenda-related" class="grid grid-cols-1 sm:grid-cols-2 gap-4 flex-1"></div>
+                        <div id="agenda-related-viewport" class="flex-1 overflow-hidden touch-pan-y">
+                          <div id="agenda-related"></div>
+                        </div>
                         <button onclick="nextRelated()" aria-label="Berikutnya" class="shrink-0 w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700 transition">
                           <i class="fa-solid fa-chevron-right text-xl" style="-webkit-text-stroke: 1px currentColor;"></i>
                         </button>
@@ -863,17 +865,19 @@ function renderRelatedView() {
     const container = document.getElementById('agenda-related');
     const n = relatedList.length;
     if (n === 0) {
-      container.innerHTML = '<p class="text-gray-500 text-sm col-span-2">Belum ada agenda lain.</p>';
+      container.innerHTML = '<p class="text-gray-500 text-sm">Belum ada agenda lain.</p>';
       return;
     }
-    const visibleCount = Math.min(2, n);
+    const itemsPerView = window.innerWidth < 640 ? 1 : 2;
+    const visibleCount = Math.min(itemsPerView, n);
     const items = [];
     for (let k = 0; k < visibleCount; k++) {
       items.push(relatedList[(relatedStart + k) % n]);
     }
+    container.className = itemsPerView === 1 ? 'grid grid-cols-1 gap-4' : 'grid grid-cols-2 gap-4';
     container.innerHTML = items.map(({e, i}) => `
-      <div class="flex gap-3 items-center cursor-pointer group" onclick="openAgendaModal(${i})">
-        <img src="${e.image || 'images/agenda1.jpg'}" alt="${e.title || ''}" class="w-20 h-20 object-cover rounded-lg shrink-0">
+      <div class="flex gap-3 items-center cursor-pointer group bg-blue-50 border-2 border-blue-200 hover:border-blue-400 rounded-xl p-3 shadow-sm hover:shadow-md transition" onclick="openAgendaModal(${i})">
+        <img src="${e.image || 'images/agenda1.jpg'}" alt="${e.title || ''}" class="w-20 h-20 object-cover rounded-lg shrink-0 shadow-sm">
         <div>
           <p class="font-semibold text-gray-800 group-hover:text-blue-700 transition">${e.title || ''}</p>
           <p class="text-xs text-gray-500">${e.tanggal || ''}</p>
@@ -883,16 +887,34 @@ function renderRelatedView() {
 }
 
 function nextRelated() {
-    if (relatedList.length <= 2) return;
+    if (relatedList.length <= 1) return;
     relatedStart = (relatedStart + 1) % relatedList.length;
     renderRelatedView();
 }
 
 function prevRelated() {
-    if (relatedList.length <= 2) return;
+    if (relatedList.length <= 1) return;
     relatedStart = (relatedStart - 1 + relatedList.length) % relatedList.length;
     renderRelatedView();
 }
+
+window.addEventListener('resize', () => {
+    if (relatedList.length) renderRelatedView();
+});
+
+(function setupRelatedSwipe() {
+    const viewport = document.getElementById('agenda-related-viewport');
+    let startX = 0;
+    viewport.addEventListener('touchstart', (e) => {
+        startX = e.touches[0].clientX;
+    }, { passive: true });
+    viewport.addEventListener('touchend', (e) => {
+        const diff = e.changedTouches[0].clientX - startX;
+        if (Math.abs(diff) > 40) {
+            diff < 0 ? nextRelated() : prevRelated();
+        }
+    }, { passive: true });
+})();
 
   function openAgendaModal(idx) {
     const e = allAgenda[idx];

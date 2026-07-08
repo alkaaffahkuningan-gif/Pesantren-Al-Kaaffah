@@ -917,7 +917,7 @@ async function muatDataCMS() {
       const grid = document.getElementById('prestasi-grid');
       if (grid && Array.isArray(data.items)) {
         grid.innerHTML = data.items.map(p => `
-          <div class="bg-white/90 p-4 rounded-lg fade-up shadow hover:scale-105 transition fade-up">
+          <div class="bg-white/90 p-4 rounded-lg shadow hover:scale-105 transition fade-up">
             <h3 class="font-bold text-blue-700">${p.judul}</h3>
             <p class="text-sm text-gray-600">${p.keterangan}</p>
           </div>

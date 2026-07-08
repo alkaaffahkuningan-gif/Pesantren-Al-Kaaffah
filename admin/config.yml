@@ -1,9 +1,6 @@
 backend:
-  name: github
-  repo: alkaaffahkuningan-gif/Pesantren-Al-Kaaffah
+  name: git-gateway
   branch: main
-  base_url: https://pesantren-al-kaaffah.alkaaffahkuningan.workers.dev
-  auth_endpoint: api/auth
 media_folder: "images"
 public_folder: "/images"
 collections:
@@ -87,7 +84,7 @@ collections:
               - { label: "Judul Prestasi", name: judul, widget: string }
               - { label: "Keterangan", name: keterangan, widget: string }
 
-- name: hero
+      - name: hero
         label: "Hero (Beranda)"
         file: "content/hero.json"
         fields:

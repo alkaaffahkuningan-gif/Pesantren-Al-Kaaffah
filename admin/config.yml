@@ -1,6 +1,9 @@
 backend:
-  name: git-gateway
+  name: github
+  repo: alkaaffahkuningan-gif/Pesantren-Al-Kaaffah
   branch: main
+  base_url: https://pesantren-al-kaaffah.alkaaffahkuningan.workers.dev
+  auth_endpoint: api/auth
 media_folder: "images"
 public_folder: "/images"
 collections:

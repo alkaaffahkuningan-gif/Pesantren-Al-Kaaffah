@@ -37,9 +37,19 @@
         #scrollTopBtn.show { display: inline-flex; opacity: 1; transform: translateY(0); }
         .parallax { background-attachment: fixed; background-position: center; background-repeat: no-repeat; background-size: cover; }
         @media (max-width: 768px) { .parallax { background-attachment: scroll; } }
+        @keyframes marquee {
+          from { transform: translateX(0); }
+          to { transform: translateX(-50%); }
+        }
+        #pengumuman-banner:hover #pengumuman-track {
+          animation-play-state: paused;
+        }
     </style>
 </head>
 <body class="font-[Poppins] bg-gray-100 font-sans">
+<div id="pengumuman-banner" class="hidden bg-yellow-400 text-gray-900 overflow-hidden py-2 relative z-40">
+  <div id="pengumuman-track" class="whitespace-nowrap inline-block"></div>
+</div>
 <div id="pageLoader" class="fixed inset-0 bg-white flex items-center justify-center z-50">
   <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-700"></div>
 </div>
@@ -918,6 +928,52 @@ document.addEventListener('keydown', (e) => {
   }
 });
   loadAgenda();
+</script>
+<script>
+async function loadPengumuman() {
+  const banner = document.getElementById('pengumuman-banner');
+  const track = document.getElementById('pengumuman-track');
+  try {
+    const cacheBuster = Date.now();
+    const res = await fetch(`https://api.github.com/repos/alkaaffahkuningan-gif/Pesantren-Al-Kaaffah/contents/content/pengumuman?t=${cacheBuster}`, { cache: 'no-store' });
+    if (!res.ok) throw new Error('Gagal mengambil daftar pengumuman: ' + res.status);
+    const files = await res.json();
+    if (!Array.isArray(files)) throw new Error('Format tidak sesuai');
+    const mdFiles = files.filter(f => f.name.endsWith('.md'));
+
+    const results = await Promise.allSettled(mdFiles.map(async f => {
+      const raw = await fetch(`${f.download_url}?t=${cacheBuster}`, { cache: 'no-store' }).then(r => r.text());
+      const match = raw.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/);
+      if (!match) return null;
+      const front = jsyaml.load(match[1]) || {};
+      const body = (match[2] || '').trim();
+      return { title: front.title || '', body };
+    }));
+
+    const items = results
+      .filter(r => r.status === 'fulfilled' && r.value && r.value.title)
+      .map(r => r.value);
+
+    if (items.length === 0) {
+      banner.classList.add('hidden');
+      return;
+    }
+
+    const teks = items
+      .map(x => `📢 <strong>${x.title}</strong>${x.body ? ' — ' + x.body : ''}`)
+      .join('&nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp;');
+
+    track.innerHTML = teks + '&nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp;' + teks;
+
+    const durasi = Math.max(15, teks.length / 8);
+    track.style.animation = `marquee ${durasi}s linear infinite`;
+
+    banner.classList.remove('hidden');
+  } catch (err) {
+    console.error('Gagal memuat pengumuman:', err);
+  }
+}
+loadPengumuman();
 </script>
 <script>
 async function muatDataCMS() {

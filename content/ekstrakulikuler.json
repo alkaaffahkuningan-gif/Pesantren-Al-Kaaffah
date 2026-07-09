@@ -1,0 +1,9 @@
+{
+  "items": [
+    { "nama": "Pramuka (Putra)", "gambar": "/images/pramuka.jpg" },
+    { "nama": "Beladiri (Putra)", "gambar": "/images/beladiri.jpg" },
+    { "nama": "Voli (Putra)", "gambar": "/images/voli.jpg" },
+    { "nama": "Menjahit (Putri)", "gambar": "/images/menjahit.png" },
+    { "nama": "Menganyam & Merajut (Putri)", "gambar": "/images/merajut.jpg" }
+  ]
+}

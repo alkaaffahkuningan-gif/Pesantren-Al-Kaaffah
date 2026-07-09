@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://pesantren-al-kaaffah.alkaaffahkuningan.workers.dev/sitemap.xml

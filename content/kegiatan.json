@@ -1,0 +1,10 @@
+{
+  "items": [
+    { "nama": "Apel Pagi", "gambar": "/images/apel.jpg" },
+    { "nama": "Kajian Kitab", "gambar": "/images/kajian.jpg" },
+    { "nama": "Olahraga", "gambar": "/images/olahraga.jpg" },
+    { "nama": "Khitobah Mingguan", "gambar": "/images/khitobah.jpg" },
+    { "nama": "Pengembangan Bahasa", "gambar": "/images/bahasa.jpg" },
+    { "nama": "Halqotul Qur'an", "gambar": "/images/keterampilan.jpg" }
+  ]
+}

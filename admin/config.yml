@@ -143,3 +143,37 @@ collections:
           - { label: "Link Instagram", name: instagram, widget: string }
           - { label: "Link YouTube", name: youtube, widget: string }
           - { label: "Link WhatsApp", name: whatsapp, widget: string }
+          
+      - name: ekstrakurikuler
+        label: "Ekstrakurikuler"
+        file: "content/ekstrakurikuler.json"
+        fields:
+          - label: "Daftar Ekstrakurikuler"
+            name: items
+            widget: list
+            fields:
+              - { label: "Nama", name: nama, widget: string }
+              - { label: "Gambar", name: gambar, widget: image }
+
+      - name: kegiatan
+        label: "Kegiatan Santri"
+        file: "content/kegiatan.json"
+        fields:
+          - label: "Daftar Kegiatan"
+            name: items
+            widget: list
+            fields:
+              - { label: "Nama", name: nama, widget: string }
+              - { label: "Gambar", name: gambar, widget: image }
+
+      - name: artikel
+        label: "Artikel & Kajian"
+        file: "content/artikel.json"
+        fields:
+          - label: "Daftar Artikel"
+            name: items
+            widget: list
+            fields:
+              - { label: "Judul", name: judul, widget: string }
+              - { label: "Gambar", name: gambar, widget: image }
+              - { label: "Deskripsi", name: deskripsi, widget: text }

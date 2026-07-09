@@ -1,0 +1,19 @@
+{
+  "items": [
+    {
+      "judul": "Pentingnya Tahfizh di Era Digital",
+      "gambar": "/images/artikel1.jpg",
+      "deskripsi": "Kajian tentang bagaimana santri menjaga hafalan Qur'an sekaligus menghadapi tantangan teknologi modern."
+    },
+    {
+      "judul": "Bahasa Arab Sebagai Bahasa Ilmu",
+      "gambar": "/images/artikel2.jpg",
+      "deskripsi": "Mengapa pesantren menekankan penguasaan bahasa Arab untuk membuka khazanah ilmu syar'i."
+    },
+    {
+      "judul": "Kemandirian Santri",
+      "gambar": "/images/artikel3.jpg",
+      "deskripsi": "Program pesantren membekali santri dengan keterampilan hidup agar siap menghadapi masa depan."
+    }
+  ]
+}

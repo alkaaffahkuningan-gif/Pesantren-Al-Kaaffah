@@ -794,12 +794,10 @@ loadGaleriHome();
 
   function agendaCardHTML(e, idx) {
     return `
-      <div class="bg-gray-100 text-gray-700 rounded-lg shadow hover-scale overflow-hidden cursor-pointer" onclick="openAgendaModal(${idx})">
-        <img src="${e.image || 'images/agenda1.jpg'}" alt="${e.title || ''}" class="w-full h-40 object-cover">
-        <div class="p-4">
-          <h4 class="font-bold text-lg">${e.title || ''}</h4>
-          <p class="text-gray-500 text-sm">${e.tanggal || ''}</p>
-        </div>
+      <div class="bg-white text-gray-700 shadow-lg rounded-lg p-4 hover-scale cursor-pointer" onclick="openAgendaModal(${idx})">
+        <img src="${e.image || 'images/agenda1.jpg'}" alt="${e.title || ''}" class="rounded-lg mb-4 w-full">
+        <h4 class="font-bold text-lg mb-2">${e.title || ''}</h4>
+        <p class="text-gray-500 text-sm">${e.tanggal || ''}</p>
       </div>
     `;
   }

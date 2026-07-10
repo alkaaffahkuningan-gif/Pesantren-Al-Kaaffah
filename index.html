@@ -32,7 +32,7 @@
         .bg-cover-section { background-size: cover; background-position: center; position: relative; color: white; }
         .bg-cover-section::before { content: ""; position: absolute; inset: 0; background-color: rgba(0,0,0,0.5); }
         .bg-cover-section > .content { position: relative; z-index: 1; }
-        .card-overlay { position: relative; overflow: hidden; border-radius: 0.75rem; }
+        .card-overlay { position: relative; overflow: hidden; border-radius: 0.75rem; height: 240px; }
         .card-overlay img { width: 100%; height: 100%; object-fit: cover; }
         .card-overlay .text { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.6); color: white; padding: 10px; text-align: center; font-weight: bold; }
         .item { display: flex; align-items: center; gap: 10px; padding: 6px 0; text-decoration: none; color: #fff; }
@@ -54,6 +54,7 @@
           opacity: 0;
           transition: opacity 0.5s ease;
         }
+        .counter-num { font-variant-numeric: tabular-nums; }
         .content-fade-enter-active {
           opacity: 1;
         }
@@ -397,9 +398,17 @@ function skeletonCards(count, opts = {}) {
     <section id="home" class="relative bg-gradient-to-r from-[#009FB2] to-[#E53935] text-white py-20">
     <div class="container mx-auto text-center fade-in px-4">
         <h2 id="hero-judul" class="text-4xl md:text-6xl font-bold mb-4">Selamat Datang di Pondok Pesantren Al-Kaaffah</h2>
-        <p id="hero-subjudul" class="text-xl md:text-2xl mb-8">Mendidik Generasi Qurani dengan Integrasi Teknologi dan IPTEK</p>
+        <p id="hero-subjudul" class="text-xl md:text-2xl mb-6">Mendidik Generasi Qurani dengan Integrasi Teknologi dan IPTEK</p>
+        <div id="hero-keunggulan" class="flex flex-wrap justify-center gap-3 mb-8"></div>
         <img id="hero-gambar" src="images/hero.jpg" alt="Pemandangan Masjid dan Santri" loading="lazy" class="w-full max-w-4xl mx-auto rounded-lg fade-up shadow-lg hover-scale" />
     </div>
+    </section>
+
+    <!-- Statistik Cepat -->
+    <section id="statistik" class="py-14 bg-blue-700">
+      <div class="container mx-auto px-4 max-w-5xl">
+        <div id="statistik-grid" class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center text-white"></div>
+      </div>
     </section>
 
 <!-- Profil -->
@@ -525,15 +534,16 @@ function skeletonCards(count, opts = {}) {
 <!-- Prestasi -->
 <section id="prestasi" class="relative bg-cover-section py-20" style="background-image: url('images/prestasi.jpg');">
   <div class="absolute inset-0 bg-white/20"></div>
-  <div class="relative z-10 container mx-auto px-4 max-w-5xl">
+  <div class="relative z-10 container mx-auto px-4 max-w-6xl">
     <h2 class="text-3xl font-bold text-center text-blue-700 mb-2">Prestasi</h2>
     <div class="w-20 h-1 bg-blue-700 mx-auto mb-2 rounded"></div>
     <p class="text-center text-white mb-10">
       Berikut adalah prestasi unggulan yang diraih santri Al-Kaaffah.
     </p>
-    <div id="prestasi-grid" class="grid md:grid-cols-2 gap-6">
-        <div class="bg-white/90 rounded-lg p-4"><div class="skeleton h-4 w-3/4 mb-2"></div><div class="skeleton h-3 w-full"></div></div>
-        <div class="bg-white/90 rounded-lg p-4"><div class="skeleton h-4 w-3/4 mb-2"></div><div class="skeleton h-3 w-full"></div></div>
+    <div id="prestasi-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+        <div class="bg-white rounded-xl overflow-hidden"><div class="skeleton h-40"></div><div class="p-4"><div class="skeleton h-4 w-3/4 mb-2"></div><div class="skeleton h-3 w-full"></div></div></div>
+        <div class="bg-white rounded-xl overflow-hidden"><div class="skeleton h-40"></div><div class="p-4"><div class="skeleton h-4 w-3/4 mb-2"></div><div class="skeleton h-3 w-full"></div></div></div>
+        <div class="bg-white rounded-xl overflow-hidden"><div class="skeleton h-40"></div><div class="p-4"><div class="skeleton h-4 w-3/4 mb-2"></div><div class="skeleton h-3 w-full"></div></div></div>
     </div>
   </div>
 </section>
@@ -1068,9 +1078,18 @@ async function muatDataCMS() {
       const grid = document.getElementById('prestasi-grid');
       if (grid && Array.isArray(data.items)) {
         fadeInSwap(grid, data.items.map(p => `
-          <div class="bg-white/90 p-4 rounded-lg shadow hover:scale-105 transition">
-            <h3 class="font-bold text-blue-700">${p.judul}</h3>
-            <p class="text-sm text-gray-600">${p.keterangan}</p>
+          <div class="bg-white rounded-xl overflow-hidden shadow hover:shadow-xl hover:-translate-y-1 transition">
+            <div class="relative">
+              <img src="${p.gambar || 'images/prestasi.jpg'}" alt="${p.judul}" class="w-full h-40 object-cover">
+              ${p.tingkat ? `<span class="absolute top-2 right-2 bg-yellow-400 text-gray-900 text-xs font-bold px-2 py-1 rounded-full">${p.tingkat}</span>` : ''}
+            </div>
+            <div class="p-4">
+              <h3 class="font-bold text-blue-700 flex items-center gap-2">
+                <i class="fa-solid fa-trophy text-yellow-500"></i>${p.judul}
+              </h3>
+              <p class="text-sm text-gray-600 mt-1">${p.keterangan}</p>
+              ${p.tahun ? `<p class="text-xs text-gray-400 mt-2">Tahun ${p.tahun}</p>` : ''}
+            </div>
           </div>
         `).join(''));
       }
@@ -1078,6 +1097,32 @@ async function muatDataCMS() {
   } catch (e) { console.error('Gagal memuat prestasi.json', e); }
 }
 muatDataCMS();
+</script>
+<script>
+function setupCounterAnimation() {
+  const counters = document.querySelectorAll('.counter-num:not([data-animated])');
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      const el = entry.target;
+      el.setAttribute('data-animated', 'true');
+      const target = parseInt(el.getAttribute('data-target'), 10) || 0;
+      const suffix = el.getAttribute('data-suffix') || '';
+      const duration = 1500;
+      const start = performance.now();
+      function tick(now) {
+        const progress = Math.min((now - start) / duration, 1);
+        const value = Math.floor(progress * target);
+        el.textContent = value + suffix;
+        if (progress < 1) requestAnimationFrame(tick);
+        else el.textContent = target + suffix;
+      }
+      requestAnimationFrame(tick);
+      obs.unobserve(el);
+    });
+  }, { threshold: 0.5 });
+  counters.forEach(el => obs.observe(el));
+}
 </script>
 <script>
 async function muatKontenTambahan() {
@@ -1088,8 +1133,33 @@ async function muatKontenTambahan() {
       if (d.judul) document.getElementById('hero-judul').textContent = d.judul;
       if (d.subjudul) document.getElementById('hero-subjudul').textContent = d.subjudul;
       if (d.gambar) document.getElementById('hero-gambar').src = d.gambar;
+      const kBox = document.getElementById('hero-keunggulan');
+      if (kBox && Array.isArray(d.keunggulan)) {
+        kBox.innerHTML = d.keunggulan.map(k => `
+          <span class="bg-white/20 backdrop-blur-sm border border-white/40 text-white text-sm font-semibold px-4 py-2 rounded-full flex items-center gap-2">
+            <i class="fa-solid fa-check text-yellow-300"></i>${k.poin ?? k}
+          </span>
+        `).join('');
+      }
     }
   } catch (e) { console.error('Gagal memuat hero.json', e); }
+
+  try {
+    const res = await fetch('/content/statistik.json', { cache: 'no-store' });
+    if (res.ok) {
+      const d = await res.json();
+      const grid = document.getElementById('statistik-grid');
+      if (grid && Array.isArray(d.items)) {
+        grid.innerHTML = d.items.map(s => `
+          <div>
+            <div class="text-4xl font-bold counter-num" data-target="${s.angka || 0}" data-suffix="${s.suffix || ''}">0</div>
+            <p class="mt-1 text-blue-100">${s.label || ''}</p>
+          </div>
+        `).join('');
+        setupCounterAnimation();
+      }
+    }
+  } catch (e) { console.error('Gagal memuat statistik.json', e); }
 
   try {
     const res = await fetch('/content/jenjang.json', { cache: 'no-store' });

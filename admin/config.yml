@@ -143,6 +143,18 @@ collections:
           - { label: "Link Instagram", name: instagram, widget: string }
           - { label: "Link YouTube", name: youtube, widget: string }
           - { label: "Link WhatsApp", name: whatsapp, widget: string }
+
+        - name: kompetensi
+        label: "Kompetensi Lulusan"
+        file: "content/kompetensi.json"
+        fields:
+          - label: "Daftar Kompetensi"
+            name: items
+            widget: list
+            fields:
+              - { label: "Emoji/Icon", name: emoji, widget: string, hint: "Contoh: 📖 🕌 📚 🗣️ 💻 🤝 🎓" }
+              - { label: "Judul", name: judul, widget: string }
+              - { label: "Deskripsi", name: deskripsi, widget: string }
           
       - name: ekstrakurikuler
         label: "Ekstrakurikuler"

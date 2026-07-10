@@ -25,6 +25,23 @@
         .text { font-size: 14px; line-height: 1.4; }
         .fade-up { opacity: 0; transform: translateY(20px); transition: opacity 0.8s ease, transform 0.8s ease; }
         .fade-up.show { opacity: 1; transform: translateY(0); }
+        @keyframes shimmer {
+        0% { background-position: -400px 0; }
+        100% { background-position: 400px 0; }
+        }
+        .skeleton {
+          background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 37%, #e5e7eb 63%);
+          background-size: 800px 100%;
+          animation: shimmer 1.4s infinite linear;
+          border-radius: 0.5rem;
+        }
+        .content-fade-enter {
+          opacity: 0;
+          transition: opacity 0.5s ease;
+        }
+        .content-fade-enter-active {
+          opacity: 1;
+        }
         #program .fade-up:nth-child(1) { transition-delay: 0.2s; }
         #program .fade-up:nth-child(2) { transition-delay: 0.4s; }
         #program .fade-up:nth-child(3) { transition-delay: 0.6s; }
@@ -212,7 +229,9 @@
     </header>
 
 <section class="relative w-full overflow-hidden bg-gray-100">
-  <div id="slider" class="flex transition-transform duration-700"></div>
+  <div id="slider" class="flex transition-transform duration-700">
+    <div class="min-w-full skeleton" style="height: 420px;"></div>
+  </div>
   <button onclick="prevSlide()" class="absolute top-1/2 left-4 -translate-y-1/2 text-white text-2xl p-2 hover:text-red-600 active:text-red-700 transition">
     <i class="fas fa-chevron-left"></i>
   </button>
@@ -221,6 +240,78 @@
   </button>
 </section>
 
+<script>
+async function fetchFolderCached(folderPath, ttlMinutes = 5) {
+  const cacheKey = `gh-cache:${folderPath}`;
+  try {
+    const cached = sessionStorage.getItem(cacheKey);
+    if (cached) {
+      const parsed = JSON.parse(cached);
+      if (Date.now() - parsed.timestamp < ttlMinutes * 60 * 1000) {
+        return parsed.data;
+      }
+    }
+  } catch (e) { /* sessionStorage tidak tersedia, lanjut ambil dari API */ }
+
+  const cacheBuster = Date.now();
+  const res = await fetch(`https://api.github.com/repos/alkaaffahkuningan-gif/Pesantren-Al-Kaaffah/contents/${folderPath}?t=${cacheBuster}`, { cache: 'no-store' });
+  if (!res.ok) throw new Error(`Gagal mengambil daftar ${folderPath}: ` + res.status);
+  const files = await res.json();
+  if (!Array.isArray(files)) throw new Error('Format tidak sesuai (kemungkinan rate limit API GitHub)');
+  const mdFiles = files.filter(f => f.name.endsWith('.md'));
+
+  const results = await Promise.allSettled(mdFiles.map(async f => {
+    const raw = await fetch(`${f.download_url}?t=${cacheBuster}`, { cache: 'no-store' }).then(r => r.text());
+    const match = raw.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/);
+    if (!match) return null;
+    const front = jsyaml.load(match[1]) || {};
+    const body = (match[2] || '').trim();
+    return { ...front, _body: body };
+  }));
+
+  const failedCount = results.filter(r => r.status === 'rejected').length;
+  if (failedCount > 0) {
+    console.warn(`${failedCount} file di ${folderPath} gagal dimuat, tapi sisanya tetap ditampilkan.`);
+  }
+
+  const data = results.filter(r => r.status === 'fulfilled' && r.value).map(r => r.value);
+
+  try {
+    sessionStorage.setItem(cacheKey, JSON.stringify({ timestamp: Date.now(), data }));
+  } catch (e) { /* penyimpanan penuh/diblokir, tetap lanjut tanpa cache */ }
+
+  return data;
+}
+</script>
+<script>
+function fadeInSwap(el, html) {
+  if (!el) return;
+  el.classList.add('content-fade-enter');
+  el.innerHTML = html;
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      el.classList.add('content-fade-enter-active');
+    });
+  });
+}
+
+function skeletonCards(count, opts = {}) {
+  const { imageHeight = 'h-40', lines = 2, cols = '' } = opts;
+  let out = '';
+  for (let i = 0; i < count; i++) {
+    out += `
+      <div class="bg-white rounded-lg shadow overflow-hidden ${cols}">
+        <div class="skeleton w-full ${imageHeight}"></div>
+        <div class="p-4 space-y-2">
+          <div class="skeleton h-4 w-3/4"></div>
+          ${lines > 1 ? '<div class="skeleton h-3 w-1/2"></div>' : ''}
+        </div>
+      </div>
+    `;
+  }
+  return out;
+}
+</script>
 <script>
   let sliderSlides = [];
   let currentIndex = 1;
@@ -277,18 +368,8 @@
 
   async function loadSlider() {
     try {
-      const cacheBuster = Date.now();
-      const res = await fetch(`https://api.github.com/repos/alkaaffahkuningan-gif/Pesantren-Al-Kaaffah/contents/content/slider?t=${cacheBuster}`, { cache: 'no-store' });
-      if (!res.ok) throw new Error('Gagal mengambil daftar slider: ' + res.status);
-      const files = await res.json();
-      if (!Array.isArray(files)) throw new Error('Format tidak sesuai');
-      const mdFiles = files.filter(f => f.name.endsWith('.md'));
-      const results = await Promise.allSettled(mdFiles.map(async f => {
-        const raw = await fetch(`${f.download_url}?t=${cacheBuster}`, { cache: 'no-store' }).then(r => r.text());
-        const match = raw.match(/^---\r?\n([\s\S]*?)\r?\n---/);
-        return match ? jsyaml.load(match[1]) : null;
-      }));
-      sliderSlides = results.filter(r => r.status === 'fulfilled' && r.value && r.value.image).map(r => r.value);
+      const data = await fetchFolderCached('content/slider');
+      sliderSlides = data.filter(x => x && x.image);
       renderSlider();
     } catch (err) {
       console.error('Gagal memuat slider:', err);
@@ -367,57 +448,20 @@
 <section id="program" class="parallax relative py-20" style="background-image: url('images/program.jpg');">
   <!-- Overlay -->
   <div class="absolute inset-0 bg-white/40"></div>
-  <div class="relative z-10 max-w-6xl mx-auto">
+  <div class="relative z-10 max-w-6xl mx-auto px-4">
     
     <!-- Judul -->
     <h2 class="text-3xl font-bold text-center text-blue-700 mb-10">Kompetensi Lulusan</h2>
     
-    <!-- Grid baris 1 (4 card) -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mb-6">
-      <div class="bg-white/80 backdrop-blur-sm p-6 rounded-xl shadow-lg fade-up text-center hover:scale-105 transition">
-        <div class="text-4xl mb-3">📖</div>
-        <h3 class="font-bold text-teal-700">Tahfizh</h3>
-        <p class="text-gray-700">Tahfizhul Qur’an minimal 9 juz per jenjang</p>
-      </div>
-      <div class="bg-white/80 backdrop-blur-sm p-6 rounded-xl shadow-lg fade-up text-center hover:scale-105 transition">
-        <div class="text-4xl mb-3">🕌</div>
-        <h3 class="font-bold text-teal-700">Aqidah</h3>
-        <p class="text-gray-700">Memahami & meyakini aqidah yang benar</p>
-      </div>
-      <div class="bg-white/80 backdrop-blur-sm p-6 rounded-xl shadow-lg fade-up text-center hover:scale-105 transition">
-        <div class="text-4xl mb-3">📚</div>
-        <h3 class="font-bold text-teal-700">Ilmu Syar’i</h3>
-        <p class="text-gray-700">Memahami & mengamalkan Ilmu Syar’i</p>
-      </div>
-      <div class="bg-white/80 backdrop-blur-sm p-6 rounded-xl shadow-lg fade-up text-center hover:scale-105 transition">
-        <div class="text-4xl mb-3">🗣️</div>
-        <h3 class="font-bold text-teal-700">Bahasa</h3>
-        <p class="text-gray-700">Kemampuan berbahasa Arab dan Inggris</p>
-      </div>
-    </div>
-    
-    <!-- Grid baris 2 (3 card, rata tengah) -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-      <div class="bg-white/80 backdrop-blur-sm p-6 rounded-xl shadow-lg fade-up text-center hover:scale-105 transition">
-        <div class="text-4xl mb-3">💻</div>
-        <h3 class="font-bold text-teal-700">Teknologi</h3>
-        <p class="text-gray-700">Menguasai dasar-dasar Teknologi dan Informasi</p>
-      </div>
-      <div class="bg-white/80 backdrop-blur-sm p-6 rounded-xl shadow-lg fade-up text-center hover:scale-105 transition">
-        <div class="text-4xl mb-3">🤝</div>
-        <h3 class="font-bold text-teal-700">Kemandirian</h3>
-        <p class="text-gray-700">Kemandirian santri dalam kehidupan sehari-hari</p>
-      </div>
-      <div class="bg-white/80 backdrop-blur-sm p-6 rounded-xl shadow-lg fade-up text-center hover:scale-105 transition">
-        <div class="text-4xl mb-3">🎓</div>
-        <h3 class="font-bold text-teal-700">Studi Lanjut</h3>
-        <p class="text-gray-700">Kesempatan melanjutkan studi ke universitas dalam/luar negeri</p>
-      </div>
+    <div id="kompetensi-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+      <div class="bg-white/80 rounded-xl p-6"><div class="skeleton h-4 w-1/2 mx-auto mb-3"></div><div class="skeleton h-3 w-full"></div></div>
+      <div class="bg-white/80 rounded-xl p-6"><div class="skeleton h-4 w-1/2 mx-auto mb-3"></div><div class="skeleton h-3 w-full"></div></div>
+      <div class="bg-white/80 rounded-xl p-6"><div class="skeleton h-4 w-1/2 mx-auto mb-3"></div><div class="skeleton h-3 w-full"></div></div>
+      <div class="bg-white/80 rounded-xl p-6"><div class="skeleton h-4 w-1/2 mx-auto mb-3"></div><div class="skeleton h-3 w-full"></div></div>
     </div>
     
   </div>
 </section>
-
 <!-- Pendaftaran -->
     <section id="pendaftaran" class="relative bg-cover-section py-20" style="background-image: url('images/pendaftaran.jpg');">
         <div class="absolute inset-0 bg-white/50 backdrop-blur-sm"></div>
@@ -473,7 +517,8 @@
       Berikut adalah prestasi unggulan yang diraih santri Al-Kaaffah.
     </p>
     <div id="prestasi-grid" class="grid md:grid-cols-2 gap-6">
-      <p class="text-center text-white col-span-2">Memuat prestasi...</p>
+        <div class="bg-white/90 rounded-lg p-4"><div class="skeleton h-4 w-3/4 mb-2"></div><div class="skeleton h-3 w-full"></div></div>
+        <div class="bg-white/90 rounded-lg p-4"><div class="skeleton h-4 w-3/4 mb-2"></div><div class="skeleton h-3 w-full"></div></div>
     </div>
   </div>
 </section>
@@ -484,7 +529,9 @@
         <div class="container mx-auto px-4 max-w-6xl">
             <h3 class="text-3xl font-bold text-center mb-8 text-blue-700">Ekstrakurikuler</h3>
             <div id="ekstra-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-                <p class="text-center text-gray-500 col-span-3">Memuat ekstrakurikuler...</p>
+                <div class="skeleton h-48"></div>
+                <div class="skeleton h-48"></div>
+                <div class="skeleton h-48"></div>
             </div>
         </div>
     </section>
@@ -494,7 +541,9 @@
         <div class="container mx-auto px-4 max-w-6xl">
             <h3 class="text-3xl font-bold text-center mb-8 text-blue-700">Kegiatan Santri</h3>
             <div id="kegiatan-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-                <p class="text-center text-gray-500 col-span-3">Memuat kegiatan...</p>
+                <div class="skeleton h-48"></div>
+                <div class="skeleton h-48"></div>
+                <div class="skeleton h-48"></div>
             </div>
         </div>
     </section>
@@ -504,7 +553,9 @@
         <div class="container mx-auto px-4 max-w-6xl">
             <h3 class="text-3xl font-bold text-center mb-8 text-blue-700">Kajian & Artikel Terbaru</h3>
             <div id="artikel-grid" class="grid md:grid-cols-3 gap-8">
-                <p class="text-center text-gray-500 col-span-3">Memuat artikel...</p>
+                <div class="bg-white rounded-lg p-4"><div class="skeleton h-40 mb-4"></div><div class="skeleton h-4 w-3/4 mb-2"></div><div class="skeleton h-3 w-full"></div></div>
+                <div class="bg-white rounded-lg p-4"><div class="skeleton h-40 mb-4"></div><div class="skeleton h-4 w-3/4 mb-2"></div><div class="skeleton h-3 w-full"></div></div>
+                <div class="bg-white rounded-lg p-4"><div class="skeleton h-40 mb-4"></div><div class="skeleton h-4 w-3/4 mb-2"></div><div class="skeleton h-3 w-full"></div></div>
             </div>
         </div>
     </section>
@@ -514,7 +565,9 @@
     <div class="container mx-auto px-4 max-w-6xl">
         <h3 class="text-3xl font-bold text-center mb-8 text-blue-700">Agenda Pesantren</h3>
         <div id="agenda-container" class="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <p class="text-center text-gray-500 col-span-3">Memuat agenda...</p>
+          <div class="bg-white rounded-lg p-4"><div class="skeleton h-40 mb-4"></div><div class="skeleton h-4 w-3/4 mb-2"></div><div class="skeleton h-3 w-1/2"></div></div>
+          <div class="bg-white rounded-lg p-4"><div class="skeleton h-40 mb-4"></div><div class="skeleton h-4 w-3/4 mb-2"></div><div class="skeleton h-3 w-1/2"></div></div>
+          <div class="bg-white rounded-lg p-4"><div class="skeleton h-40 mb-4"></div><div class="skeleton h-4 w-3/4 mb-2"></div><div class="skeleton h-3 w-1/2"></div></div>
         </div>
         <div class="text-center mt-10">
             <button onclick="openAgendaAllModal()" class="bg-blue-700 text-white font-semibold px-6 py-3 rounded-full hover:bg-blue-800 hover:scale-105 transition shadow">
@@ -574,7 +627,9 @@
         <div class="container mx-auto px-4 max-w-5xl text-center">
             <h3 class="text-3xl font-bold mb-8 text-blue-700">Testimoni Santri & Wali</h3>
             <div id="testimoni-grid" class="grid md:grid-cols-3 gap-6">
-                <p class="text-center text-gray-500 col-span-3">Memuat testimoni...</p>
+                <div class="bg-white rounded-lg p-6"><div class="skeleton h-4 w-full mb-2"></div><div class="skeleton h-4 w-2/3 mb-4"></div><div class="skeleton h-3 w-1/3 mx-auto"></div></div>
+                <div class="bg-white rounded-lg p-6"><div class="skeleton h-4 w-full mb-2"></div><div class="skeleton h-4 w-2/3 mb-4"></div><div class="skeleton h-3 w-1/3 mx-auto"></div></div>
+                <div class="bg-white rounded-lg p-6"><div class="skeleton h-4 w-full mb-2"></div><div class="skeleton h-4 w-2/3 mb-4"></div><div class="skeleton h-3 w-1/3 mx-auto"></div></div>
             </div>
         </div>
     </section>
@@ -583,7 +638,12 @@
   <div class="container mx-auto px-4 max-w-6xl">
     <h3 class="text-3xl font-bold text-center mb-8 text-blue-700">Galeri Foto</h3>
     <div id="galeri-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-      <p class="text-center text-gray-500 col-span-3">Memuat galeri...</p>
+      <div class="skeleton h-56"></div>
+      <div class="skeleton h-56"></div>
+      <div class="skeleton h-56"></div>
+      <div class="skeleton h-56"></div>
+      <div class="skeleton h-56"></div>
+      <div class="skeleton h-56"></div>
     </div>
   </div>
 </section>
@@ -602,7 +662,7 @@
     <!-- Kontak Kami (tengah) -->
     <div class="space-y-3 text-center">
       <h4 class="font-bold mb-4">Kontak Kami</h4>
-      <p><i class="fa-solid fa-envelope mr-2 text-yellow-400"></i> <span id="footer-email">info@alkaaffah.sch.id</p>
+      <p><i class="fa-solid fa-envelope mr-2 text-yellow-400"></i> <span id="footer-email">info@alkaaffah.sch.id</span></p>
       <p>
         <i class="fa-brands fa-whatsapp mr-2 text-green-400"></i>
         <a id="footer-whatsapp" href="https://wa.me/6282123332162" target="_blank" class="hover:underline">0821-2333-2162</a>
@@ -741,18 +801,8 @@ document.querySelectorAll('nav .group').forEach(group => {
 async function loadGaleriHome() {
   const grid = document.getElementById('galeri-grid');
   try {
-    const cacheBuster = Date.now();
-    const res = await fetch(`https://api.github.com/repos/alkaaffahkuningan-gif/Pesantren-Al-Kaaffah/contents/content/galeri?t=${cacheBuster}`, { cache: 'no-store' });
-    if (!res.ok) throw new Error('Gagal mengambil daftar galeri: ' + res.status);
-    const files = await res.json();
-    if (!Array.isArray(files)) throw new Error('Format tidak sesuai');
-    const mdFiles = files.filter(f => f.name.endsWith('.md'));
-    const results = await Promise.allSettled(mdFiles.map(async f => {
-      const raw = await fetch(`${f.download_url}?t=${cacheBuster}`, { cache: 'no-store' }).then(r => r.text());
-      const match = raw.match(/^---\r?\n([\s\S]*?)\r?\n---/);
-      return match ? jsyaml.load(match[1]) : null;
-    }));
-    const items = results.filter(r => r.status === 'fulfilled' && r.value && r.value.image).map(r => r.value);
+    const data = await fetchFolderCached('content/galeri');
+    const items = data.filter(x => x && x.image);
 
     if (items.length === 0) {
       grid.innerHTML = '<p class="text-center text-gray-500 col-span-3">Belum ada foto galeri.</p>';
@@ -771,7 +821,7 @@ async function loadGaleriHome() {
         <span>Lihat Selengkapnya</span>
       </div>
     </a>`;
-    grid.innerHTML = html;
+    fadeInSwap(grid, html);
   } catch (err) {
     console.error('Gagal memuat galeri:', err);
     grid.innerHTML = '<p class="text-center text-red-500 col-span-3">Gagal memuat galeri.</p>';
@@ -809,9 +859,9 @@ loadGaleriHome();
   function renderAgendaHome() {
     const container = document.getElementById('agenda-container');
     const top3 = allAgenda.slice(0, 3);
-    container.innerHTML = top3.length
+    fadeInSwap(container, top3.length
       ? top3.map((e, i) => agendaCardHTML(e, i)).join('')
-      : '<p class="text-center text-gray-500 col-span-3">Belum ada agenda.</p>';
+      : '<p class="text-center text-gray-500 col-span-3">Belum ada agenda.</p>');
   }
 
   function renderAgendaAll() {
@@ -914,32 +964,10 @@ window.addEventListener('resize', () => {
 async function loadAgenda() {
     const container = document.getElementById('agenda-container');
     try {
-      const cacheBuster = Date.now();
-      const res = await fetch(`https://api.github.com/repos/alkaaffahkuningan-gif/Pesantren-Al-Kaaffah/contents/content/agenda?t=${cacheBuster}`, {
-        cache: 'no-store'
-      });
-      if (!res.ok) throw new Error('Gagal mengambil daftar file: ' + res.status);
-      const files = await res.json();
-      if (!Array.isArray(files)) throw new Error('Format respons tidak sesuai (kemungkinan rate limit API GitHub)');
-      const mdFiles = files.filter(f => f.name.endsWith('.md'));
-
-      const results = await Promise.allSettled(mdFiles.map(async f => {
-        const raw = await fetch(`${f.download_url}?t=${cacheBuster}`, { cache: 'no-store' }).then(r => r.text());
-        const match = raw.match(/^---\r?\n([\s\S]*?)\r?\n---/);
-        return match ? jsyaml.load(match[1]) : null;
-      }));
-
-      const entries = results
-        .filter(r => r.status === 'fulfilled' && r.value)
-        .map(r => r.value);
-
-      const failedCount = results.filter(r => r.status === 'rejected').length;
-      if (failedCount > 0) {
-        console.warn(`${failedCount} file agenda gagal dimuat, tapi sisanya tetap ditampilkan.`);
-      }
+      const entries = await fetchFolderCached('content/agenda');
 
       allAgenda = entries
-        .filter(e => e.title)
+        .filter(e => e && e.title)
         .sort((a, b) => parseTanggalIndo(b.tanggal) - parseTanggalIndo(a.tanggal));
 
       renderAgendaHome();
@@ -961,25 +989,10 @@ async function loadPengumuman() {
   const banner = document.getElementById('pengumuman-banner');
   const track = document.getElementById('pengumuman-track');
   try {
-    const cacheBuster = Date.now();
-    const res = await fetch(`https://api.github.com/repos/alkaaffahkuningan-gif/Pesantren-Al-Kaaffah/contents/content/pengumuman?t=${cacheBuster}`, { cache: 'no-store' });
-    if (!res.ok) throw new Error('Gagal mengambil daftar pengumuman: ' + res.status);
-    const files = await res.json();
-    if (!Array.isArray(files)) throw new Error('Format tidak sesuai');
-    const mdFiles = files.filter(f => f.name.endsWith('.md'));
-
-    const results = await Promise.allSettled(mdFiles.map(async f => {
-      const raw = await fetch(`${f.download_url}?t=${cacheBuster}`, { cache: 'no-store' }).then(r => r.text());
-      const match = raw.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/);
-      if (!match) return null;
-      const front = jsyaml.load(match[1]) || {};
-      const body = (match[2] || '').trim();
-      return { title: front.title || '', body };
-    }));
-
-    const items = results
-      .filter(r => r.status === 'fulfilled' && r.value && r.value.title)
-      .map(r => r.value);
+    const data = await fetchFolderCached('content/pengumuman');
+    const items = data
+      .filter(x => x && x.title)
+      .map(x => ({ title: x.title, body: x._body || '' }));
 
     if (items.length === 0) {
       banner.classList.add('hidden');
@@ -1039,12 +1052,12 @@ async function muatDataCMS() {
       const data = await res.json();
       const grid = document.getElementById('prestasi-grid');
       if (grid && Array.isArray(data.items)) {
-        grid.innerHTML = data.items.map(p => `
+        fadeInSwap(grid, data.items.map(p => `
           <div class="bg-white/90 p-4 rounded-lg shadow hover:scale-105 transition">
             <h3 class="font-bold text-blue-700">${p.judul}</h3>
             <p class="text-sm text-gray-600">${p.keterangan}</p>
           </div>
-        `).join('');
+        `).join(''));
       }
     }
   } catch (e) { console.error('Gagal memuat prestasi.json', e); }
@@ -1087,12 +1100,12 @@ async function muatKontenTambahan() {
       const d = await res.json();
       const grid = document.getElementById('testimoni-grid');
       if (grid && Array.isArray(d.items)) {
-        grid.innerHTML = d.items.map(t => `
-          <div class="bg-white text-gray-700 p-6 rounded-lg fade-up show shadow hover-scale">
+        fadeInSwap(grid, d.items.map(t => `
+          <div class="bg-white text-gray-700 p-6 rounded-lg shadow hover-scale">
             <p class="italic">"${t.isi}"</p>
             <h4 class="mt-4 font-bold">– ${t.nama}</h4>
           </div>
-        `).join('');
+        `).join(''));
       }
     }
   } catch (e) { console.error('Gagal memuat testimoni.json', e); }
@@ -1129,12 +1142,12 @@ try {
       const d = await res.json();
       const grid = document.getElementById('ekstra-grid');
       if (grid && Array.isArray(d.items)) {
-        grid.innerHTML = d.items.map(x => `
+        fadeInSwap(grid, d.items.map(x => `
           <div class="card-overlay">
             <img src="${x.gambar || ''}" alt="${x.nama || ''}" loading="lazy">
             <div class="text">${x.nama || ''}</div>
           </div>
-        `).join('');
+        `).join(''));
       }
     }
   } catch (e) { console.error('Gagal memuat ekstrakurikuler.json', e); }
@@ -1145,12 +1158,12 @@ try {
       const d = await res.json();
       const grid = document.getElementById('kegiatan-grid');
       if (grid && Array.isArray(d.items)) {
-        grid.innerHTML = d.items.map(x => `
+        fadeInSwap(grid, d.items.map(x => `
           <div class="card-overlay">
             <img src="${x.gambar || ''}" alt="${x.nama || ''}" loading="lazy">
             <div class="text">${x.nama || ''}</div>
           </div>
-        `).join('');
+        `).join(''));
       }
     }
   } catch (e) { console.error('Gagal memuat kegiatan.json', e); }
@@ -1161,16 +1174,33 @@ try {
       const d = await res.json();
       const grid = document.getElementById('artikel-grid');
       if (grid && Array.isArray(d.items)) {
-        grid.innerHTML = d.items.map(x => `
+        fadeInSwap(grid, d.items.map(x => `
           <div class="bg-white text-gray-700 shadow-lg rounded-lg p-4 hover-scale">
             <img src="${x.gambar || ''}" alt="${x.judul || ''}" class="rounded-lg mb-4">
             <h4 class="font-bold text-lg mb-2">${x.judul || ''}</h4>
             <p class="text-gray-600 text-sm">${x.deskripsi || ''}</p>
           </div>
-        `).join('');
+        `).join(''));
       }
     }
   } catch (e) { console.error('Gagal memuat artikel.json', e); }
+
+  try {
+    const res = await fetch('/content/kompetensi.json', { cache: 'no-store' });
+    if (res.ok) {
+      const d = await res.json();
+      const grid = document.getElementById('kompetensi-grid');
+      if (grid && Array.isArray(d.items)) {
+        fadeInSwap(grid, d.items.map(x => `
+          <div class="bg-white/80 backdrop-blur-sm p-6 rounded-xl shadow-lg text-center hover:scale-105 transition">
+            <div class="text-4xl mb-3">${x.emoji || ''}</div>
+            <h3 class="font-bold text-teal-700">${x.judul || ''}</h3>
+            <p class="text-gray-700">${x.deskripsi || ''}</p>
+          </div>
+        `).join(''));
+      }
+    }
+  } catch (e) { console.error('Gagal memuat kompetensi.json', e); }
 }
 muatKontenTambahan();
 </script>

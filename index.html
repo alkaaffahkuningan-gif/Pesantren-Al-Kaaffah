@@ -738,7 +738,7 @@ function skeletonCards(count, opts = {}) {
 </button>
   <!-- Copyright -->
   <div class="text-center mt-6 border-t border-white/30 pt-4 text-sm">
-    <p>&copy; 2025 Pondok Pesantren Al-Kaaffah. All rights reserved.</p>
+    <p>&copy; 2025–<span id="year"></span> Pondok Pesantren Al-Kaaffah. All rights reserved.</p>
   </div>
 </footer>
 
@@ -1218,6 +1218,9 @@ try {
   } catch (e) { console.error('Gagal memuat kompetensi.json', e); }
 }
 muatKontenTambahan();
+</script>
+<script>
+  document.getElementById('year').textContent = new Date().getFullYear();
 </script>
 </body>
 </html>

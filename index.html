@@ -243,7 +243,10 @@
     sliderEl.style.transform = `translateX(-${currentIndex * slideWidth}%)`;
   }
 
+  let isSliderAnimating = false;
   function showSlide(index) {
+    if (isSliderAnimating) return;
+    isSliderAnimating = true;
     sliderEl.style.transition = 'transform 0.7s ease';
     sliderEl.style.transform = `translateX(-${index * slideWidth}%)`;
     currentIndex = index;
@@ -268,6 +271,7 @@
       currentIndex = total - 2;
       sliderEl.style.transform = `translateX(-${currentIndex * slideWidth}%)`;
     }
+    isSliderAnimating = false;
   });
   setInterval(() => { nextSlide(); }, 4000);
 

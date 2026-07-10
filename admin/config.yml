@@ -86,7 +86,14 @@ collections:
             widget: list
             fields:
               - { label: "Judul Prestasi", name: judul, widget: string }
-              - { label: "Keterangan", name: keterangan, widget: string }
+              - { label: "Keterangan/Nama Lomba", name: keterangan, widget: string }
+              - { label: "Foto", name: gambar, widget: image, required: false }
+              - { label: "Tahun", name: tahun, widget: string, required: false }
+              - label: "Tingkat Lomba"
+                name: tingkat
+                widget: select
+                required: false
+                options: ["Sekolah", "Kabupaten", "Provinsi", "Nasional", "Internasional"]
 
       - name: hero
         label: "Hero (Beranda)"
@@ -95,6 +102,10 @@ collections:
           - { label: "Judul", name: judul, widget: string }
           - { label: "Subjudul", name: subjudul, widget: string }
           - { label: "Gambar Hero", name: gambar, widget: image }
+          - label: "Poin Keunggulan Cepat"
+            name: keunggulan
+            widget: list
+            field: { label: Poin, name: poin, widget: string }
 
       - name: jenjang
         label: "Jenjang Pendidikan"
@@ -189,3 +200,15 @@ collections:
               - { label: "Judul", name: judul, widget: string }
               - { label: "Gambar", name: gambar, widget: image }
               - { label: "Deskripsi", name: deskripsi, widget: text }
+
+- name: statistik
+        label: "Statistik Cepat"
+        file: "content/statistik.json"
+        fields:
+          - label: "Daftar Statistik"
+            name: items
+            widget: list
+            fields:
+              - { label: "Angka", name: angka, widget: number }
+              - { label: "Tambahan Simbol", name: suffix, widget: string, default: "+", hint: "Contoh: + atau %" }
+              - { label: "Label", name: label, widget: string }

@@ -26,5 +26,5 @@ deskripsi: >-
   Agenda Utama: Sosialisasi kurikulum akademis, pemaparan regulasi tata tertib kepesantrenan, pengenalan jajaran asatidzah/pengurus, serta sesi diskusi dan komitmen bersama demi mendukung kelancaran proses belajar-mengajar putra-putri kita tercinta.
 
   Kami ucapkan selamat datang di keluarga besar Pondok Pesantren Al-Kaaffah. Mari bersama-sama kita luruskan niat, kuatkan ikhtiar, dan hantarkan anak-anak kita menjadi generasi dambaan umat
-image: /images/hero.jpg
+image: /images/whatsapp-image-2026-07-10-at-09.40.52.jpeg
 ---

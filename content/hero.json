@@ -1,5 +1,12 @@
 {
   "judul": "Selamat Datang di Pondok Pesantren Al-Kaaffah",
   "subjudul": "Mendidik Generasi Qurani dengan Integrasi Teknologi dan IPTEK",
-  "gambar": "images/hero.jpg"
+  "gambar": "images/hero.jpg",
+  "keunggulan": [
+    { "poin": "Program Tahfizh 9 Juz/Jenjang" },
+    { "poin": "Bahasa Arab & Inggris" },
+    { "poin": "Kelas IPA Terpadu" },
+    { "poin": "Pembinaan Adab" },
+    { "poin": "Asrama Terpisah Putra-Putri" }
+  ]
 }

@@ -1,0 +1,8 @@
+{
+  "items": [
+    { "angka": 140, "suffix": "+", "label": "Santri Aktif" },
+    { "angka": 20, "suffix": "+", "label": "Ustadz/Ustadzah" },
+    { "angka": 5, "suffix": "+", "label": "Tahun Pengabdian" },
+    { "angka": 10, "suffix": "+", "label": "Prestasi Diraih" }
+  ]
+}

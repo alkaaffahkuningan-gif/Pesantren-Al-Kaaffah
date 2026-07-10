@@ -5,10 +5,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Galeri Lengkap - Pondok Pesantren Al-Kaaffah</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
   <style>
     .lightbox { position: fixed; inset: 0; background: rgba(0,0,0,.85); display: flex; align-items:center; justify-content:center; z-index:50; }
     .lightbox img { max-width: 90%; max-height: 90%; border-radius: .5rem; }
     .lightbox img { animation: zoomIn 0.3s ease; } @keyframes zoomIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+    @keyframes shimmer { 0% { background-position: -400px 0; } 100% { background-position: 400px 0; } }
+    .skeleton {
+      background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 37%, #e5e7eb 63%);
+      background-size: 800px 100%;
+      animation: shimmer 1.4s infinite linear;
+      border-radius: 0.5rem;
+    }
+    .content-fade-enter { opacity: 0; transition: opacity 0.5s ease; }
+    .content-fade-enter-active { opacity: 1; }
   </style>
 </head>
 <body class="bg-gray-50">
@@ -17,49 +28,117 @@
     <div class="container mx-auto px-4 max-w-6xl">
       <h1 class="text-3xl font-bold text-center mb-8 text-blue-700">Galeri Lengkap</h1>
 
-      <!-- Grid foto banyak -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        <img src="images/galeri1.jpg" alt="" class="rounded-lg shadow-md" />
-        <img src="images/galeri2.jpg" alt="" class="rounded-lg shadow-md" />
-        <img src="images/galeri3.jpg" alt="" class="rounded-lg shadow-md" />
-        <img src="images/galeri4.jpg" alt="" class="rounded-lg shadow-md" />
-        <img src="images/galeri5.jpg" alt="" class="rounded-lg shadow-md" />
-        <img src="images/galeri6.jpg" alt="" class="rounded-lg shadow-md" />
-        <img src="images/galeri7.jpg" alt="" class="rounded-lg shadow-md" />
-        <img src="images/galeri8.jpg" alt="" class="rounded-lg shadow-md" />
+      <div id="galeri-full-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div class="skeleton h-48"></div>
+        <div class="skeleton h-48"></div>
+        <div class="skeleton h-48"></div>
+        <div class="skeleton h-48"></div>
+        <div class="skeleton h-48"></div>
+        <div class="skeleton h-48"></div>
+        <div class="skeleton h-48"></div>
+        <div class="skeleton h-48"></div>
       </div>
     </div>
-      <div id="lightbox" class="hidden lightbox" role="dialog" aria-modal="true">
-    <button id="lbClose" aria-label="Tutup galeri" class="absolute top-6 right-6 text-white text-2xl">✕</button>
-    <img id="lbImg" src="" alt="">
+    <div id="lightbox" class="hidden lightbox" role="dialog" aria-modal="true">
+      <button id="lbClose" aria-label="Tutup galeri" class="absolute top-6 right-6 text-white text-2xl">✕</button>
+      <img id="lbImg" src="" alt="">
     </div>
   </section>
 
 <!-- Tombol Kembali Mengambang -->
 <a href="javascript:history.back()" 
    class="font-bold fixed bottom-6 left-1/2 -translate-x-1/2 bg-blue-600 text-white px-4 py-2 rounded-full shadow-xl hover:bg-blue-700 transition flex items-center gap-2 z-50">
-   <!-- Icon panah -->
    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
    </svg>
    <span>Kembali</span>
 </a>
-  <script>
-    document.querySelectorAll('.container img').forEach(img => {
-      img.addEventListener('click', () => {
-        const lb = document.getElementById('lightbox');
-        document.getElementById('lbImg').src = img.src;
-        document.getElementById('lbImg').alt = img.alt || '';
-        lb.classList.remove('hidden');
-      });
+
+<script>
+async function fetchFolderCached(folderPath, ttlMinutes = 5) {
+  const cacheKey = `gh-cache:${folderPath}`;
+  try {
+    const cached = sessionStorage.getItem(cacheKey);
+    if (cached) {
+      const parsed = JSON.parse(cached);
+      if (Date.now() - parsed.timestamp < ttlMinutes * 60 * 1000) {
+        return parsed.data;
+      }
+    }
+  } catch (e) { /* sessionStorage tidak tersedia, lanjut ambil dari API */ }
+
+  const cacheBuster = Date.now();
+  const res = await fetch(`https://api.github.com/repos/alkaaffahkuningan-gif/Pesantren-Al-Kaaffah/contents/${folderPath}?t=${cacheBuster}`, { cache: 'no-store' });
+  if (!res.ok) throw new Error(`Gagal mengambil daftar ${folderPath}: ` + res.status);
+  const files = await res.json();
+  if (!Array.isArray(files)) throw new Error('Format tidak sesuai (kemungkinan rate limit API GitHub)');
+  const mdFiles = files.filter(f => f.name.endsWith('.md'));
+
+  const results = await Promise.allSettled(mdFiles.map(async f => {
+    const raw = await fetch(`${f.download_url}?t=${cacheBuster}`, { cache: 'no-store' }).then(r => r.text());
+    const match = raw.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/);
+    if (!match) return null;
+    const front = jsyaml.load(match[1]) || {};
+    const body = (match[2] || '').trim();
+    return { ...front, _body: body };
+  }));
+
+  const data = results.filter(r => r.status === 'fulfilled' && r.value).map(r => r.value);
+
+  try {
+    sessionStorage.setItem(cacheKey, JSON.stringify({ timestamp: Date.now(), data }));
+  } catch (e) { /* lanjut tanpa cache */ }
+
+  return data;
+}
+
+function fadeInSwap(el, html) {
+  if (!el) return;
+  el.classList.add('content-fade-enter');
+  el.innerHTML = html;
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      el.classList.add('content-fade-enter-active');
     });
-    document.getElementById('lbClose').addEventListener('click', () => {
-      document.getElementById('lightbox').classList.add('hidden');
-    });
-    document.getElementById('lightbox').addEventListener('click', (e) => {
-      if (e.target.id === 'lightbox') e.currentTarget.classList.add('hidden');
-    });
-    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') document.getElementById('lightbox').classList.add('hidden'); });
-  </script>
+  });
+}
+
+async function loadGaleriLengkap() {
+  const grid = document.getElementById('galeri-full-grid');
+  try {
+    const data = await fetchFolderCached('content/galeri');
+    const items = data.filter(x => x && x.image);
+
+    if (items.length === 0) {
+      grid.innerHTML = '<p class="text-center text-gray-500 col-span-4">Belum ada foto galeri.</p>';
+      return;
+    }
+
+    const html = items.map(x => `<img src="${x.image}" alt="${x.title || ''}" loading="lazy" class="rounded-lg shadow-md w-full h-48 object-cover cursor-pointer hover:opacity-90 transition">`).join('');
+    fadeInSwap(grid, html);
+  } catch (err) {
+    console.error('Gagal memuat galeri:', err);
+    grid.innerHTML = '<p class="text-center text-red-500 col-span-4">Gagal memuat galeri. Coba refresh beberapa saat lagi.</p>';
+  }
+}
+loadGaleriLengkap();
+
+// Lightbox — pakai event delegation supaya tetap jalan walau gambar ditambahkan belakangan
+document.getElementById('galeri-full-grid').addEventListener('click', (e) => {
+  if (e.target.tagName === 'IMG') {
+    const lb = document.getElementById('lightbox');
+    document.getElementById('lbImg').src = e.target.src;
+    document.getElementById('lbImg').alt = e.target.alt || '';
+    lb.classList.remove('hidden');
+  }
+});
+document.getElementById('lbClose').addEventListener('click', () => {
+  document.getElementById('lightbox').classList.add('hidden');
+});
+document.getElementById('lightbox').addEventListener('click', (e) => {
+  if (e.target.id === 'lightbox') e.currentTarget.classList.add('hidden');
+});
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') document.getElementById('lightbox').classList.add('hidden'); });
+</script>
 </body>
 </html>

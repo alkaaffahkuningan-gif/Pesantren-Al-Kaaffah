@@ -1,0 +1,11 @@
+{
+  "items": [
+    { "emoji": "📖", "judul": "Tahfizh", "deskripsi": "Tahfizhul Qur'an minimal 9 juz per jenjang" },
+    { "emoji": "🕌", "judul": "Aqidah", "deskripsi": "Memahami & meyakini aqidah yang benar" },
+    { "emoji": "📚", "judul": "Ilmu Syar'i", "deskripsi": "Memahami & mengamalkan Ilmu Syar'i" },
+    { "emoji": "🗣️", "judul": "Bahasa", "deskripsi": "Kemampuan berbahasa Arab dan Inggris" },
+    { "emoji": "💻", "judul": "Teknologi", "deskripsi": "Menguasai dasar-dasar Teknologi dan Informasi" },
+    { "emoji": "🤝", "judul": "Kemandirian", "deskripsi": "Kemandirian santri dalam kehidupan sehari-hari" },
+    { "emoji": "🎓", "judul": "Studi Lanjut", "deskripsi": "Kesempatan melanjutkan studi ke universitas dalam/luar negeri" }
+  ]
+}

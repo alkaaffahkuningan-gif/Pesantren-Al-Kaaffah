@@ -92,7 +92,7 @@ collections:
               - label: "Tingkat Lomba"
                 name: tingkat
                 widget: select
-                required: false
+                required: false 
                 options: ["Sekolah", "Kabupaten", "Provinsi", "Nasional", "Internasional"]
 
       - name: hero

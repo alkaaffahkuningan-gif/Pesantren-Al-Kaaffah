@@ -399,6 +399,9 @@ function skeletonCards(count, opts = {}) {
     <div class="container mx-auto text-center fade-in px-4">
         <h2 id="hero-judul" class="text-4xl md:text-6xl font-bold mb-4">Selamat Datang di Pondok Pesantren Al-Kaaffah</h2>
         <p id="hero-subjudul" class="text-xl md:text-2xl mb-6">Mendidik Generasi Qurani dengan Integrasi Teknologi dan IPTEK</p>
+        <a href="#pendaftaran" class="inline-block mb-10 bg-white text-blue-700 font-semibold px-8 py-3 rounded-full shadow-lg hover:scale-105 transition">
+            Info Pendaftaran Santri Baru
+        </a>
         <div id="hero-keunggulan" class="flex flex-wrap justify-center gap-3 mb-8"></div>
         <img id="hero-gambar" src="images/hero.jpg" alt="Pemandangan Masjid dan Santri" loading="lazy" class="w-full max-w-4xl mx-auto rounded-lg fade-up shadow-lg hover-scale" />
     </div>
@@ -528,8 +531,30 @@ function skeletonCards(count, opts = {}) {
                     </ul>
                 </div>
             </div>
+
+            <!-- Brosur & Kontak PPDB -->
+            <div id="ppdb-box" class="hidden mt-10 bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-8">
+                <h4 id="ppdb-judul" class="text-2xl font-bold text-center text-blue-700 mb-6">Brosur & Kontak PPDB</h4>
+                <div id="ppdb-grid" class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+                    <div id="ppdb-brosur" class="hidden text-center">
+                        <img id="ppdb-brosur-img" src="" alt="Brosur PPDB Pesantren Al-Kaaffah" class="hidden w-full max-w-sm mx-auto rounded-xl shadow-md cursor-zoom-in" onclick="openBrosurZoom()">
+                        <a id="ppdb-brosur-pdf" href="#" target="_blank" rel="noopener" download class="hidden mt-4 inline-flex items-center gap-2 bg-blue-700 hover:bg-blue-800 text-white font-semibold px-6 py-3 rounded-full shadow transition">
+                            <i class="fa-solid fa-download"></i> Unduh Brosur
+                        </a>
+                    </div>
+                    <div id="ppdb-kontak-wrap">
+                        <p class="text-gray-700 mb-4 text-center md:text-left">Ada pertanyaan seputar pendaftaran? Hubungi panitia PPDB kami:</p>
+                        <div id="ppdb-kontak" class="space-y-3"></div>
+                    </div>
+                </div>
+            </div>
         </div>
     </section>
+
+    <!-- Perbesar Brosur -->
+    <div id="brosur-zoom" onclick="closeBrosurZoom()" class="hidden fixed inset-0 bg-black/80 z-[80] flex items-center justify-center p-4 cursor-zoom-out">
+        <img id="brosur-zoom-img" src="" alt="Brosur PPDB" class="max-h-[90vh] max-w-full rounded-lg shadow-2xl">
+    </div>
 
 <!-- Prestasi -->
 <section id="prestasi" class="relative bg-cover-section py-20" style="background-image: url('images/prestasi.jpg');">
@@ -737,8 +762,10 @@ function skeletonCards(count, opts = {}) {
   </div>
 <!-- Scroll to top -->
 <a id="floating-wa" href="https://wa.me/6282123332162" target="_blank" rel="noopener noreferrer"
-   class="fixed bottom-6 left-6 z-50 bg-green-500 hover:bg-green-600 text-white w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition">
+   title="Chat Admin Pesantren" aria-label="Chat Admin Pesantren"
+   class="fixed bottom-6 left-6 z-50 bg-green-500 hover:bg-green-600 text-white h-14 min-w-[3.5rem] px-4 rounded-full flex items-center justify-center gap-2 shadow-lg transition">
   <i class="fa-brands fa-whatsapp text-3xl"></i>
+  <span class="hidden sm:inline font-semibold text-sm">Chat Admin</span>
 </a>
 <button id="scrollTopBtn" aria-label="Kembali ke atas"
   class="hidden fixed bottom-6 right-6 z-50 p-3 rounded-full shadow-lg text-white bg-blue-700 hover:bg-blue-600 focus:outline-none">
@@ -1291,6 +1318,72 @@ muatKontenTambahan();
 </script>
 <script>
   document.getElementById('year').textContent = new Date().getFullYear();
+</script>
+<script>
+function openBrosurZoom() {
+  const src = document.getElementById('ppdb-brosur-img').src;
+  if (!src) return;
+  document.getElementById('brosur-zoom-img').src = src;
+  document.getElementById('brosur-zoom').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+}
+function closeBrosurZoom() {
+  document.getElementById('brosur-zoom').classList.add('hidden');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeBrosurZoom(); });
+
+async function muatPPDB() {
+  try {
+    const res = await fetch('/content/ppdb.json', { cache: 'no-store' });
+    if (!res.ok) return;
+    const d = await res.json();
+
+    const kontak = Array.isArray(d.kontak) ? d.kontak.filter(k => k && k.nomor) : [];
+    const adaBrosur = !!(d.brosur_gambar || d.brosur_pdf);
+    if (!adaBrosur && kontak.length === 0) return;
+
+    if (d.judul) document.getElementById('ppdb-judul').textContent = d.judul;
+
+    if (adaBrosur) {
+      document.getElementById('ppdb-brosur').classList.remove('hidden');
+      if (d.brosur_gambar) {
+        const img = document.getElementById('ppdb-brosur-img');
+        img.src = d.brosur_gambar;
+        img.classList.remove('hidden');
+      }
+      const link = document.getElementById('ppdb-brosur-pdf');
+      link.href = d.brosur_pdf || d.brosur_gambar;
+      link.classList.remove('hidden');
+    }
+
+    if (kontak.length === 0) document.getElementById('ppdb-kontak-wrap').classList.add('hidden');
+    if (!adaBrosur || kontak.length === 0) {
+      document.getElementById('ppdb-grid').className = 'grid grid-cols-1 gap-8 max-w-xl mx-auto';
+    }
+
+    const pesan = encodeURIComponent(d.pesan || '');
+    document.getElementById('ppdb-kontak').innerHTML = kontak.map(k => {
+      let nomor = String(k.nomor).replace(/\D/g, '');
+      if (nomor.startsWith('0')) nomor = '62' + nomor.slice(1);
+      return `
+        <a href="https://wa.me/${nomor}?text=${pesan}" target="_blank" rel="noopener noreferrer"
+           class="flex items-center gap-4 bg-white border-2 border-green-200 hover:border-green-400 rounded-xl p-4 shadow-sm hover:shadow-md transition group">
+          <span class="shrink-0 w-12 h-12 rounded-full bg-green-500 text-white flex items-center justify-center text-2xl">
+            <i class="fa-brands fa-whatsapp"></i>
+          </span>
+          <span class="flex-1 text-left">
+            <span class="block font-semibold text-gray-800">${k.nama || 'Panitia PPDB'}</span>
+            <span class="block text-sm text-gray-500">${k.nomor}</span>
+          </span>
+          <span class="text-green-600 font-semibold text-sm group-hover:underline">Chat <i class="fa-solid fa-arrow-right"></i></span>
+        </a>`;
+    }).join('');
+
+    document.getElementById('ppdb-box').classList.remove('hidden');
+  } catch (e) { console.error('Gagal memuat ppdb.json', e); }
+}
+muatPPDB();
 </script>
 </body>
 </html>

@@ -213,3 +213,17 @@ collections:
               - { label: "Angka", name: angka, widget: number }
               - { label: "Tambahan Simbol", name: suffix, widget: string, default: "+", hint: "Contoh: + atau %" }
               - { label: "Label", name: label, widget: string }
+      - name: ppdb
+        label: "Brosur & Kontak PPDB"
+        file: "content/ppdb.json"
+        fields:
+          - { label: "Judul Bagian", name: judul, widget: string, default: "Brosur & Kontak PPDB" }
+          - { label: "Gambar Brosur", name: brosur_gambar, widget: image, required: false }
+          - { label: "File Brosur (PDF)", name: brosur_pdf, widget: file, required: false }
+          - { label: "Pesan Otomatis WhatsApp", name: pesan, widget: string, default: "Assalamu'alaikum, saya ingin bertanya tentang pendaftaran santri baru Pesantren Al-Kaaffah." }
+          - label: "Kontak Panitia"
+            name: kontak
+            widget: list
+            fields:
+              - { label: "Nama / Bagian", name: nama, widget: string, hint: "Contoh: Panitia Putra" }
+              - { label: "Nomor WhatsApp", name: nomor, widget: string, hint: "Boleh 0812... atau 62812..., tanpa spasi" }
